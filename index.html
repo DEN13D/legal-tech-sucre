@@ -175,8 +175,7 @@ main{padding-bottom:120px}
 .promo{background:var(--terracota-suave);color:var(--ink);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:6px}
 .promo b{color:var(--terracota)}
 .planes{display:grid;gap:14px}
-@media (min-width:720px){.planes{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:1000px){.planes{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:720px){.planes{grid-template-columns:repeat(3,1fr)}}
 .plan{position:relative;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px;cursor:pointer;text-align:left;font:inherit;color:inherit;min-width:0}
 .plan[aria-checked="true"]{border-color:var(--verde);box-shadow:0 0 0 3px var(--verde-suave)}
 .plan-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -590,21 +589,11 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
   <div class="screen-head">
     <span class="eyebrow">Juntas de acción comunal y líderes</span>
     <h1>Que toda la vereda tenga quién la defienda</h1>
-    <p class="lead">Con el plan Comunitario, la junta o asociación afilia a sus miembros y el líder puede seguir los casos desde su celular.</p>
+    <p class="lead">Los líderes y las juntas ayudan a sus vecinos a afiliarse y pueden seguir sus casos desde el celular.</p>
   </div>
 
   <div class="grid grid-2">
     <div class="stack">
-      <div class="card">
-        <span class="eyebrow">Plan Comunitario</span>
-        <p class="price"><span class="now">Desde $60.000 <small>al mes</small></span></p>
-        <ul class="muted" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px">
-          <li>Orientación para los miembros de la junta</li>
-          <li>Documentos para trámites de la junta</li>
-          <li>Panel del líder para ver casos y plazos</li>
-          <li>Charlas por la emisora comunitaria</li>
-        </ul>
-      </div>
       <div class="card">
         <h3>Gana como promotor</h3>
         <p class="muted">Cada líder, junta o promotor recibe un código y un QR propio. Gana el 10% de la membresía de cada persona que afilie, mientras esa persona siga activa.</p>
@@ -627,7 +616,7 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
     </div>
   </div>
 
-  <a class="btn btn-primary" href="#contacto">Inscribir mi junta</a>
+  <a class="btn btn-primary" href="#contacto">Quiero ser promotor</a>
   <p class="nota"><b>Nota de maqueta:</b> falta definir si el 10% se calcula sobre el precio completo o sobre el neto. Los casos del panel son de ejemplo.</p>
 </section>
 
@@ -941,7 +930,6 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
     {id:"consulta", n:"Consulta", p:18000, inc:["Preguntas de orientación sin límite","Orientación básica sobre qué hacer y ante quién"], para:"Para saber qué hacer con tu problema."},
     {id:"tramite", n:"Trámite", p:28000, inc:["Todo lo del plan Consulta","Cartas para exigir respuesta (derechos de petición)","Seguimiento de tu caso y avisos de plazos"], para:"Para cuando una entidad no te responde.", top:true},
     {id:"defensa", n:"Defensa", p:38000, inc:["Todo lo del plan Trámite","Tutelas","Abogado con prioridad"], para:"Para casos urgentes de salud, víctimas o mínimo vital."},
-    {id:"comunitario", n:"Comunitario", p:60000, desde:true, inc:["Para juntas y asociaciones","Afilia a varios miembros","Panel del líder"], para:"Para la junta de tu vereda o tu asociación."}
   ];
   const fmt = n => "$" + Math.round(n).toLocaleString("es-CO").replace(/,/g,".");
   const promo = p => Math.round(p * 0.7 / 100) * 100;
@@ -954,7 +942,7 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
       b.setAttribute("aria-checked", String(pl.id === plan)); b.id = "plan-" + pl.id;
       b.innerHTML = (pl.top ? '<span class="badge">El más pedido</span>' : '') +
         '<span class="plan-top"><span class="plan-name">' + pl.n + '</span><span class="radio" aria-hidden="true"></span></span>' +
-        '<span class="price"><span class="now">' + (pl.desde ? "Desde " : "") + fmt(promo(pl.p)) + ' <small>al mes</small></span>' +
+        '<span class="price"><span class="now">' + fmt(promo(pl.p)) + ' <small>al mes</small></span>' +
         '<span class="was">Precio normal: ' + fmt(pl.p) + ' al mes</span></span>' +
         '<ul>' + pl.inc.map(i => "<li>" + i + "</li>").join("") + '</ul>' +
         '<span class="para">' + pl.para + '</span>';
@@ -975,7 +963,7 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
     PLANES.forEach(pl => {
       const l = document.createElement("label"); l.className = "opt"; l.setAttribute("for","afp-" + pl.id);
       l.innerHTML = '<input type="radio" name="afplan" id="afp-' + pl.id + '" value="' + pl.id + '"' + (pl.id === plan ? " checked" : "") + '>' +
-        '<span><b>' + pl.n + ' · ' + (pl.desde ? "desde " : "") + fmt(promo(pl.p)) + ' al mes</b><span class="muted small">' + pl.para + ' Precio normal ' + fmt(pl.p) + '.</span></span>';
+        '<span><b>' + pl.n + ' · ' + fmt(promo(pl.p)) + ' al mes</b><span class="muted small">' + pl.para + ' Precio normal ' + fmt(pl.p) + '.</span></span>';
       l.querySelector("input").addEventListener("change", e => { plan = e.target.value; renderPlanes(); });
       w.appendChild(l);
     });
