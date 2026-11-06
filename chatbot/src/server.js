@@ -124,6 +124,36 @@ app.post("/webhook", (req, res) => {
   }
 });
 
+// ---------- Diagnóstico de la conexión con Meta (protegido con ADMIN_KEY) ----------
+const GRAPH = () => "https://graph.facebook.com/" + (process.env.GRAPH_VERSION || "v25.0");
+async function graph(ruta, metodo = "GET") {
+  const r = await fetch(GRAPH() + ruta, { method: metodo, headers: { Authorization: "Bearer " + process.env.WHATSAPP_TOKEN } });
+  return { estado: r.status, respuesta: await r.json().catch(() => null) };
+}
+
+// Muestra el número de prueba y qué apps reciben los mensajes de la cuenta de WhatsApp (WABA).
+app.get("/admin/diagnostico", async (req, res) => {
+  if (!ADMIN_KEY || req.query.clave !== ADMIN_KEY) return res.sendStatus(403);
+  const waba = req.query.waba || process.env.WABA_ID;
+  const out = { numero: await graph("/" + process.env.PHONE_NUMBER_ID + "?fields=display_phone_number,verified_name,quality_rating,code_verification_status") };
+  if (waba) {
+    out.numeros_de_la_cuenta = await graph("/" + waba + "/phone_numbers?fields=id,display_phone_number,verified_name");
+    out.apps_suscritas = await graph("/" + waba + "/subscribed_apps");
+  } else out.nota = "Agregue &waba=IDENTIFICADOR_DE_LA_CUENTA para revisar la suscripción.";
+  res.json(out);
+});
+
+// Suscribe esta app a la cuenta de WhatsApp para que Meta le entregue los mensajes.
+app.get("/admin/suscribir", async (req, res) => {
+  if (!ADMIN_KEY || req.query.clave !== ADMIN_KEY) return res.sendStatus(403);
+  const waba = req.query.waba || process.env.WABA_ID;
+  if (!waba) return res.status(400).json({ error: "Falta &waba=IDENTIFICADOR_DE_LA_CUENTA" });
+  const suscripcion = await graph("/" + waba + "/subscribed_apps", "POST");
+  const ahora = await graph("/" + waba + "/subscribed_apps");
+  console.log("Suscripción de la cuenta " + waba + ":", JSON.stringify(suscripcion.respuesta));
+  res.json({ suscripcion, apps_suscritas: ahora });
+});
+
 // Lista de casos para el abogado (protegida con ADMIN_KEY).
 app.get("/casos", (req, res) => {
   if (!ADMIN_KEY || req.query.clave !== ADMIN_KEY) return res.sendStatus(403);
