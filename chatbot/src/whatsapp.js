@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const VERSION = process.env.GRAPH_VERSION || "v23.0";
+const VERSION = process.env.GRAPH_VERSION || "v25.0";
 const TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_ID = process.env.PHONE_NUMBER_ID;
 const DRY_RUN = process.env.DRY_RUN === "1";
