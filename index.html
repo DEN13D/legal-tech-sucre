@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Legal Tech Sucre</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Justicia administrativa cerca de ti, sin importar dónde vivas.">
+<style>
+/* Layout: una columna para celular; tarjetas solo donde hay que elegir algo; un solo botón principal por pantalla. */
+:root{
+  --bg:#F4F2EA;          /* tierra seca clara */
+  --surface:#FFFFFF;
+  --surface-2:#EAE5D8;
+  --ink:#241C14;
+  --ink-soft:#5C5143;
+  --line:#D8D0BF;
+  --verde:#2D6A3E;       /* primario */
+  --verde-hondo:#1E4A2B;
+  --on-verde:#FFFFFF;
+  --verde-suave:#DCEADF;
+  --terracota:#AE4F27;   /* acento: promociones y alertas */
+  --terracota-suave:#F5E1D5;
+  --tierra:#76502F;
+  --chat-bg:#E6E1D3;
+  --chat-in:#FFFFFF;
+  --chat-out:#D5EBD8;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",Ubuntu,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#16130E;--surface:#211C15;--surface-2:#2B241B;--ink:#F2EBDE;--ink-soft:#BFB2A0;--line:#3B3228;
+  --verde:#74B585;--verde-hondo:#A9D6B5;--on-verde:#0F1A12;--verde-suave:#1F3325;
+  --terracota:#E58E62;--terracota-suave:#3A2318;--tierra:#CFA67D;
+  --chat-bg:#1B1712;--chat-in:#2B241B;--chat-out:#1F3A27;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#16130E;--surface:#211C15;--surface-2:#2B241B;--ink:#F2EBDE;--ink-soft:#BFB2A0;--line:#3B3228;
+  --verde:#74B585;--verde-hondo:#A9D6B5;--on-verde:#0F1A12;--verde-suave:#1F3325;
+  --terracota:#E58E62;--terracota-suave:#3A2318;--tierra:#CFA67D;
+  --chat-bg:#1B1712;--chat-in:#2B241B;--chat-out:#1F3A27;color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.55;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+a{color:var(--verde-hondo)}
+h1,h2,h3{line-height:1.2;text-wrap:balance;margin:0}
+h1{font-size:clamp(1.9rem,6.5vw,2.8rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,4.6vw,1.9rem);font-weight:800}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.narrow{max-width:680px}
+:focus-visible{outline:3px solid var(--terracota);outline-offset:3px;border-radius:6px}
+
+/* Encabezado */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;min-height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:800;font-size:1.05rem;margin-right:auto}
+.brand svg{width:36px;height:36px;flex:none}
+.brand sup{font-size:.6em;font-weight:600}
+.menu-btn{min-height:48px;padding:0 16px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;display:flex;align-items:center;gap:8px;cursor:pointer}
+.menu-btn svg{width:22px;height:22px}
+.nav-inline{display:none;gap:4px}
+.nav-inline a{text-decoration:none;color:var(--ink-soft);font-weight:600;font-size:.95rem;padding:8px 10px;border-radius:10px}
+.nav-inline a[aria-current="page"]{color:var(--verde-hondo);background:var(--verde-suave)}
+@media (min-width:980px){.nav-inline{display:flex}.menu-btn .lbl-more{display:inline}}
+.drawer{position:fixed;inset:0;z-index:40;background:rgb(0 0 0 / .45);display:flex;justify-content:flex-end}
+.drawer-panel{background:var(--surface);width:min(360px,100%);height:100%;overflow-y:auto;padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 16px;display:flex;flex-direction:column;gap:6px}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.drawer a{display:flex;align-items:center;min-height:56px;padding:0 14px;border-radius:12px;text-decoration:none;color:var(--ink);font-weight:700;font-size:1.1rem}
+.drawer a[aria-current="page"]{background:var(--verde-suave);color:var(--verde-hondo)}
+.drawer .sep{height:1px;background:var(--line);margin:8px 0}
+
+/* Aviso fijo del abogado */
+.aviso{background:var(--verde-suave);color:var(--verde-hondo);font-size:.95rem;font-weight:600}
+.aviso .wrap{display:flex;gap:10px;align-items:center;padding-block:10px}
+.aviso svg{flex:none;width:22px;height:22px}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:0 24px;border-radius:var(--r);font:inherit;font-size:1.1rem;font-weight:800;text-decoration:none;cursor:pointer;border:2px solid transparent;text-align:center}
+.btn-primary{background:var(--verde);color:var(--on-verde)}
+.btn-primary:hover{background:var(--verde-hondo)}
+.btn-secondary{background:transparent;color:var(--verde-hondo);border-color:var(--verde)}
+.btn-block{width:100%}
+.btn svg{width:24px;height:24px;flex:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.link-arrow{font-weight:700;color:var(--verde-hondo);text-decoration:none;display:inline-flex;gap:6px;align-items:center;min-height:44px}
+.link-arrow::after{content:"→"}
+
+/* Pantallas */
+main{padding-bottom:120px}
+.screen{padding-block:28px 8px;display:flex;flex-direction:column;gap:36px}
+.screen-head{display:flex;flex-direction:column;gap:12px}
+.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--terracota)}
+.lead{font-size:1.15rem;color:var(--ink-soft);max-width:60ch}
+.stack{display:flex;flex-direction:column;gap:14px}
+.grid{display:grid;gap:14px}
+@media (min-width:720px){.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.muted{color:var(--ink-soft)}
+.small{font-size:.92rem}
+.nota{border:2px dashed var(--tierra);border-radius:12px;padding:12px 14px;font-size:.9rem;color:var(--ink-soft);background:transparent}
+.nota b{color:var(--tierra)}
+
+/* Inicio */
+.hero{display:grid;gap:28px;align-items:center}
+@media (min-width:860px){.hero{grid-template-columns:1.1fr .9fr}}
+.hero-copy{display:flex;flex-direction:column;gap:18px}
+.slogan{font-size:1.25rem;color:var(--ink-soft)}
+.trust{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.95rem;font-weight:600;color:var(--ink-soft)}
+.trust span{display:flex;gap:6px;align-items:center}
+.trust svg{width:20px;height:20px;color:var(--verde)}
+
+/* Chat de triaje */
+.phone{background:var(--chat-bg);border:1px solid var(--line);border-radius:24px;overflow:hidden;max-width:420px;width:100%;justify-self:center}
+.phone-bar{background:var(--verde-hondo);color:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 16px}
+:root[data-theme="dark"] .phone-bar{color:var(--on-verde)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .phone-bar{color:var(--on-verde)}}
+.phone-bar .av{width:36px;height:36px;border-radius:50%;background:var(--bg);display:grid;place-items:center;flex:none}
+.phone-bar .av svg{width:26px;height:26px}
+.phone-bar b{display:block;font-size:1rem}
+.phone-bar small{font-size:.8rem;opacity:.85}
+.chat{padding:14px;display:flex;flex-direction:column;gap:8px;min-height:340px}
+.msg{max-width:86%;padding:10px 12px;border-radius:14px;font-size:1rem;line-height:1.4;background:var(--chat-in);color:var(--ink);align-self:flex-start;border-top-left-radius:4px}
+.msg.out{background:var(--chat-out);align-self:flex-end;border-top-left-radius:14px;border-top-right-radius:4px}
+.msg .step{display:block;font-size:.75rem;font-weight:800;color:var(--terracota);letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0 4px}
+.chip{min-height:46px;padding:0 14px;border-radius:999px;border:2px solid var(--verde);background:var(--surface);color:var(--verde-hondo);font:inherit;font-size:1rem;font-weight:700;cursor:pointer}
+.chip:hover{background:var(--verde-suave)}
+.chat-foot{padding:10px 14px;border-top:1px solid var(--line);font-size:.82rem;color:var(--ink-soft);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.chat-foot button{background:none;border:0;color:var(--verde-hondo);font:inherit;font-weight:700;cursor:pointer;padding:0;min-height:32px}
+
+/* Pasos del servicio (secuencia real: 5 etapas) */
+.pasos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+.paso{display:grid;grid-template-columns:52px 1fr;gap:16px;padding-bottom:22px;position:relative}
+.paso::before{content:"";position:absolute;left:25px;top:52px;bottom:0;width:2px;background:var(--line)}
+.paso:last-child::before{display:none}
+.paso-n{width:52px;height:52px;border-radius:50%;background:var(--verde);color:var(--on-verde);display:grid;place-items:center;font-weight:800;font-size:1.3rem}
+.paso-body{display:flex;flex-direction:column;gap:6px;padding-top:10px;min-width:0}
+.tag{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;font-size:.82rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-soft)}
+
+.feature{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.feature .ic{width:44px;height:44px;border-radius:12px;background:var(--verde-suave);color:var(--verde-hondo);display:grid;place-items:center}
+.feature .ic svg{width:24px;height:24px}
+.feature div:last-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+
+/* Servicios */
+.doc-card{gap:12px}
+.doc-card .ley{font-family:var(--mono);font-size:.82rem;color:var(--tierra);letter-spacing:.02em}
+.doc-card ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.plazo{display:flex;gap:12px;align-items:center;background:var(--surface-2);border-radius:12px;padding:12px 14px}
+.plazo strong{font-size:1.6rem;font-variant-numeric:tabular-nums;color:var(--verde-hondo);line-height:1}
+.plazo span{font-size:.92rem;color:var(--ink-soft);line-height:1.3}
+.temas{display:flex;flex-wrap:wrap;gap:8px}
+.temas span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:.98rem}
+
+/* Membresías */
+.promo{background:var(--terracota-suave);color:var(--ink);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.promo b{color:var(--terracota)}
+.planes{display:grid;gap:14px}
+@media (min-width:720px){.planes{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1000px){.planes{grid-template-columns:repeat(4,1fr)}}
+.plan{position:relative;background:var(--surface);border:2px solid var(--line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px;cursor:pointer;text-align:left;font:inherit;color:inherit;min-width:0}
+.plan[aria-checked="true"]{border-color:var(--verde);box-shadow:0 0 0 3px var(--verde-suave)}
+.plan-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.plan-name{font-size:1.25rem;font-weight:800}
+.radio{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;flex:none}
+.plan[aria-checked="true"] .radio{border-color:var(--verde);background:var(--verde)}
+.plan[aria-checked="true"] .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--on-verde)}
+.price{display:flex;flex-direction:column;gap:2px}
+.price .now{font-size:1.9rem;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.price .now small{font-size:.95rem;font-weight:600;color:var(--ink-soft)}
+.price .was{font-size:.92rem;color:var(--ink-soft)}
+.price .was s{font-variant-numeric:tabular-nums}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:1rem}
+.plan li{display:grid;grid-template-columns:20px 1fr;gap:8px}
+.plan li::before{content:"";width:18px;height:18px;margin-top:4px;border-radius:50%;background:var(--verde-suave) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232D6A3E' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/12px no-repeat}
+.plan .para{font-size:.92rem;color:var(--ink-soft);margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+.badge{position:absolute;top:-12px;left:18px;background:var(--terracota);color:var(--surface);font-size:.78rem;font-weight:800;padding:4px 10px;border-radius:999px;letter-spacing:.03em}
+.sticky-cta{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.pagos{display:flex;flex-wrap:wrap;gap:8px}
+.pagos span{border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:700;font-size:.95rem;background:var(--surface)}
+
+/* Afiliarme */
+.stepper{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;list-style:none;margin:0;padding:0}
+.stepper li{display:flex;flex-direction:column;gap:6px;font-size:.8rem;font-weight:700;color:var(--ink-soft)}
+.stepper li::before{content:"";height:6px;border-radius:3px;background:var(--line)}
+.stepper li.done::before,.stepper li.cur::before{background:var(--verde)}
+.stepper li.cur{color:var(--verde-hondo)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700}
+.field .hint{font-size:.9rem;color:var(--ink-soft)}
+input[type=text],input[type=tel],select,textarea{font:inherit;font-size:1.1rem;min-height:56px;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+textarea{min-height:110px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--verde);outline:none;box-shadow:0 0 0 3px var(--verde-suave)}
+.opt{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;padding:16px;border:2px solid var(--line);border-radius:12px;background:var(--surface);cursor:pointer}
+.opt input{width:24px;height:24px;margin:2px 0 0;accent-color:var(--verde)}
+.opt:has(input:checked){border-color:var(--verde);background:var(--verde-suave)}
+.opt b{display:block}
+.consent{max-height:220px;overflow-y:auto;background:var(--surface-2);border-radius:12px;padding:14px 16px;font-size:.95rem;display:flex;flex-direction:column;gap:8px}
+.ref{background:var(--surface);border:2px solid var(--verde);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.ref-code{font-family:var(--mono);font-size:clamp(1.5rem,7vw,2.1rem);font-weight:700;letter-spacing:.06em;color:var(--verde-hondo);word-break:break-all}
+.resumen{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:1rem;width:100%}
+.resumen dt{color:var(--ink-soft)}
+.resumen dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.err{color:var(--terracota);font-weight:700;font-size:.95rem}
+
+/* Panel de líder */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.panel-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.kpi{padding:14px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi+.kpi{border-left:1px solid var(--line)}
+.kpi b{font-size:1.7rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi span{font-size:.85rem;color:var(--ink-soft)}
+.casos{list-style:none;margin:0;padding:0}
+.casos li{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 18px;border-bottom:1px solid var(--line)}
+.casos li:last-child{border-bottom:0}
+.casos small{color:var(--ink-soft);font-size:.88rem}
+.pill{font-size:.8rem;font-weight:800;padding:4px 10px;border-radius:999px;align-self:center;white-space:nowrap}
+.pill.ok{background:var(--verde-suave);color:var(--verde-hondo)}
+.pill.warn{background:var(--terracota-suave);color:var(--terracota)}
+.pill.wait{background:var(--surface-2);color:var(--ink-soft)}
+
+/* FAQ */
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+summary{cursor:pointer;list-style:none;padding:16px 48px 16px 18px;font-weight:700;position:relative;min-height:56px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:18px;top:12px;font-size:1.5rem;font-weight:600;color:var(--verde)}
+details[open] summary::after{content:"–"}
+details .ans{padding:0 18px 18px;color:var(--ink-soft);display:flex;flex-direction:column;gap:8px}
+
+/* QR */
+.qr-box{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.qr{width:168px;height:168px;background:#FFFFFF;border-radius:14px;padding:6px;flex:none;border:1px solid var(--line)}
+.qr svg{width:100%;height:100%;display:block}
+.num{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.num output{font-family:var(--mono);font-size:1.3rem;font-weight:700;user-select:all}
+.copy{min-height:44px;padding:0 14px;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;cursor:pointer}
+
+/* Legales */
+.legal h3{margin-top:6px}
+.legal p,.legal li{color:var(--ink-soft)}
+.legal ul{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+
+/* Expectativa */
+.pronto{min-height:70vh;display:flex;flex-direction:column;justify-content:center;gap:20px;align-items:flex-start}
+.pronto h1{font-size:clamp(2.2rem,9vw,3.6rem)}
+
+/* Botón flotante de WhatsApp */
+.fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:25;display:flex;align-items:center;gap:10px;min-height:60px;padding:0 20px 0 16px;border-radius:999px;background:var(--verde);color:var(--on-verde);text-decoration:none;font-weight:800;font-size:1.05rem;box-shadow:0 6px 18px rgb(0 0 0 / .25)}
+.fab svg{width:28px;height:28px}
+
+/* Pie */
+footer{background:var(--surface);border-top:1px solid var(--line);font-size:.95rem}
+footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:18px}
+.foot-links{display:flex;flex-wrap:wrap;gap:4px 18px}
+.foot-links a{color:var(--ink-soft);text-decoration:none;font-weight:600;min-height:40px;display:inline-flex;align-items:center}
+.legal-line{color:var(--ink-soft);font-size:.88rem;display:flex;flex-direction:column;gap:4px}
+.maqueta{display:inline-flex;align-self:flex-start;gap:8px;align-items:center;font-size:.82rem;font-weight:800;color:var(--tierra);border:2px dashed var(--tierra);padding:4px 10px;border-radius:8px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:700;z-index:50;max-width:calc(100% - 32px);text-align:center}
+</style>
+</head>
+<body>
+
+
+<template id="qr-tpl"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" class="qr-svg"><path class="qrline" stroke="#1d1a16" d="M2 2.5h7m1 0h2m1 0h2m1 0h2m1 0h9m2 0h1m1 0h2m2 0h7m-41 1h1m5 0h1m1 0h5m2 0h2m1 0h1m4 0h3m2 0h1m5 0h1m5 0h1m-41 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h1m4 0h1m5 0h1m3 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m3 0h1m1 0h1m4 0h2m1 0h1m4 0h1m1 0h3m1 0h1m-41 1h1m1 0h3m1 0h1m3 0h1m1 0h1m2 0h3m1 0h1m2 0h1m2 0h5m1 0h1m2 0h1m1 0h3m1 0h1m-41 1h1m5 0h1m9 0h1m2 0h2m1 0h1m1 0h1m1 0h1m1 0h4m2 0h1m5 0h1m-41 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-33 1h2m1 0h1m1 0h2m1 0h2m1 0h2m2 0h2m3 0h3m-31 1h1m1 0h2m1 0h3m2 0h1m6 0h1m1 0h4m1 0h1m2 0h4m1 0h1m1 0h1m2 0h1m1 0h2m-41 1h3m5 0h2m1 0h1m1 0h2m1 0h2m1 0h1m1 0h4m1 0h1m3 0h7m1 0h3m-40 1h3m2 0h1m1 0h5m1 0h1m2 0h1m2 0h2m1 0h1m4 0h2m5 0h2m1 0h2m-39 1h2m1 0h1m2 0h1m2 0h1m1 0h1m2 0h2m2 0h1m2 0h1m2 0h2m3 0h1m1 0h2m5 0h2m-41 1h3m2 0h3m2 0h1m3 0h5m1 0h1m3 0h10m1 0h1m1 0h3m-38 1h1m1 0h1m3 0h2m1 0h4m2 0h1m2 0h1m1 0h5m2 0h1m1 0h5m1 0h3m-40 1h4m2 0h1m2 0h2m1 0h5m1 0h6m1 0h1m4 0h2m2 0h1m2 0h1m1 0h2m-40 1h1m2 0h2m2 0h2m1 0h1m1 0h4m4 0h1m1 0h1m2 0h2m3 0h1m2 0h4m1 0h1m-38 1h5m1 0h1m2 0h1m3 0h1m2 0h1m1 0h2m3 0h1m2 0h1m3 0h1m3 0h1m-36 1h3m1 0h1m2 0h1m3 0h3m5 0h2m1 0h1m1 0h1m1 0h1m1 0h5m1 0h1m1 0h1m1 0h1m-39 1h6m3 0h2m2 0h2m2 0h1m3 0h1m4 0h3m4 0h1m1 0h3m-38 1h1m1 0h2m2 0h1m1 0h2m2 0h1m1 0h1m1 0h5m2 0h1m4 0h1m1 0h3m1 0h1m1 0h4m-39 1h1m1 0h3m1 0h2m1 0h1m4 0h1m2 0h1m3 0h1m1 0h1m2 0h1m2 0h1m1 0h2m3 0h2m-40 1h3m1 0h1m2 0h1m1 0h2m1 0h1m1 0h2m3 0h3m1 0h2m1 0h3m1 0h4m1 0h2m2 0h2m-41 1h1m1 0h1m1 0h3m1 0h2m4 0h1m2 0h1m5 0h1m5 0h1m3 0h1m3 0h1m1 0h1m-40 1h2m1 0h1m3 0h3m1 0h1m1 0h3m3 0h2m1 0h1m1 0h3m1 0h1m1 0h1m1 0h4m-35 1h1m2 0h1m1 0h1m1 0h1m2 0h2m2 0h4m1 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m2 0h3m-41 1h3m2 0h1m1 0h1m2 0h6m1 0h4m1 0h1m4 0h3m1 0h2m1 0h1m2 0h2m1 0h1m-41 1h4m1 0h4m1 0h1m3 0h1m3 0h2m2 0h1m1 0h1m1 0h1m3 0h3m1 0h4m1 0h2m-41 1h1m8 0h4m2 0h1m5 0h1m1 0h2m1 0h3m2 0h2m1 0h1m1 0h2m1 0h1m-38 1h1m2 0h3m1 0h2m1 0h3m1 0h1m3 0h1m1 0h4m1 0h1m3 0h2m3 0h2m1 0h1m-39 1h2m4 0h5m3 0h6m4 0h1m4 0h3m2 0h1m3 0h1m-40 1h1m3 0h9m1 0h2m1 0h1m1 0h1m1 0h1m4 0h1m2 0h2m1 0h3m1 0h2m1 0h1m-38 1h2m1 0h1m1 0h1m3 0h3m1 0h3m1 0h1m3 0h1m3 0h3m4 0h5m1 0h1m-40 1h3m2 0h1m2 0h2m2 0h3m1 0h2m1 0h2m4 0h2m1 0h1m1 0h6m1 0h1m1 0h1m-33 1h1m1 0h2m2 0h4m1 0h3m1 0h1m1 0h2m1 0h1m2 0h2m3 0h2m2 0h1m-41 1h7m1 0h1m2 0h2m2 0h2m1 0h1m4 0h1m1 0h1m3 0h1m1 0h2m1 0h1m1 0h3m-39 1h1m5 0h1m1 0h4m3 0h3m2 0h1m2 0h1m4 0h1m2 0h2m3 0h1m3 0h1m-41 1h1m1 0h3m1 0h1m3 0h7m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1m1 0h5m1 0h2m-40 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h1m2 0h2m1 0h1m2 0h1m1 0h1m1 0h2m3 0h2m3 0h1m2 0h1m-40 1h1m1 0h3m1 0h1m1 0h2m1 0h3m1 0h2m2 0h1m2 0h1m1 0h1m1 0h1m1 0h3m4 0h1m3 0h2m-41 1h1m5 0h1m3 0h2m1 0h4m3 0h2m2 0h1m1 0h1m3 0h1m1 0h3m1 0h1m2 0h1m-40 1h7m1 0h1m1 0h3m1 0h3m4 0h1m1 0h4m3 0h3m6 0h1"/></svg></template>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="var(--verde)"/><path d="M8 27c4-3 8-4 12-4s8 1 12 4M10 31c3-2 6-3 10-3s7 1 10 3" stroke="var(--on-verde)" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M20 8v11M14 12h12M14 12l-3 6h6zM26 12l-3 6h6z" stroke="var(--on-verde)" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 19.5l1.3-3.6A8 8 0 1 1 8.4 19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 10.5h6M9 13.5h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-signal" viewBox="0 0 24 24"><path d="M5 19v-3M10 19v-6M15 19v-9M20 19V6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-cash" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 19c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 13.5c2.4 0 4 1.7 4 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6 3h3l1.5 4.5-2 1.5a11 11 0 0 0 6.5 6.5l1.5-2L21 15v3a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-radio" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 9l10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15.5" cy="14.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6.5 13h3M6.5 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 3v4h4M9 12h6M9 16h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#inicio" aria-label="Legal Tech Sucre, inicio"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Legal Tech Sucre<sup>™</sup></span></a>
+    <nav class="nav-inline" aria-label="Principal">
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#membresias">Membresías</a>
+      <a href="#juntas">Juntas y líderes</a>
+      <a href="#preguntas">Preguntas</a>
+    </nav>
+    <button class="menu-btn" id="menu-open" aria-expanded="false" aria-controls="drawer"><svg aria-hidden="true"><use href="#i-menu"/></svg><span>Menú</span></button>
+  </div>
+</header>
+
+<div class="drawer" id="drawer" hidden>
+  <nav class="drawer-panel" aria-label="Menú completo">
+    <div class="drawer-head">
+      <span class="brand"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Menú</span></span>
+      <button class="menu-btn" id="menu-close"><svg aria-hidden="true"><use href="#i-close"/></svg><span>Cerrar</span></button>
+    </div>
+    <a href="#inicio">Inicio</a>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#membresias">Membresías</a>
+    <a href="#afiliarme">Afiliarme</a>
+    <a href="#juntas">Juntas y líderes</a>
+    <div class="sep"></div>
+    <a href="#quienes-somos">Quiénes somos</a>
+    <a href="#preguntas">Preguntas frecuentes</a>
+    <a href="#contacto">Contacto</a>
+    <a href="#legales">Legales</a>
+    <a href="#pronto">Página de expectativa</a>
+  </nav>
+</div>
+
+<div class="aviso" role="note">
+  <div class="wrap"><svg aria-hidden="true"><use href="#i-shield"/></svg><span>El asistente orienta y un abogado titulado revisa tus documentos.</span></div>
+</div>
+
+<main>
+
+<!-- ============ INICIO ============ -->
+<section class="screen wrap" id="v-inicio" data-view="inicio">
+  <div class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Asesoría en trámites con el Estado · Sucre</span>
+      <h1>Tu abogado en el celular, por WhatsApp.</h1>
+      <p class="slogan">Justicia administrativa cerca de ti, sin importar dónde vivas.</p>
+      <p class="lead">¿La alcaldía no te responde? ¿Te negaron una ayuda o una cita de salud? Te ayudamos a escribir la carta para reclamar y te avisamos cuándo deben contestarte.</p>
+      <a class="btn btn-primary" href="#" data-wa><svg aria-hidden="true"><use href="#i-chat"/></svg>Escríbenos por WhatsApp</a>
+      <div class="trust">
+        <span><svg aria-hidden="true"><use href="#i-shield"/></svg>Abogado titulado revisa todo</span>
+        <span><svg aria-hidden="true"><use href="#i-signal"/></svg>Funciona con poca señal</span>
+        <span><svg aria-hidden="true"><use href="#i-cash"/></svg>Pagas en Efecty o SuperGiros</span>
+      </div>
+    </div>
+
+    <div class="phone" aria-label="Ejemplo del chat de orientación">
+      <div class="phone-bar">
+        <span class="av"><svg aria-hidden="true"><use href="#i-logo"/></svg></span>
+        <div><b>Legal Tech Sucre</b><small>Asistente · responde al instante</small></div>
+      </div>
+      <div class="chat" id="chat" aria-live="polite"></div>
+      <div class="chat-foot"><span>Ejemplo · 4 preguntas, menos de 2 minutos</span><button type="button" id="chat-reset">Empezar de nuevo</button></div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h2>¿Con qué te ayudamos?</h2>
+    <div class="grid grid-3">
+      <div class="card"><h3>Carta para exigir respuesta</h3><p class="muted">Cuando una entidad no te contesta o necesitas pedirle algo. La ley le da 15 días hábiles para responder.</p></div>
+      <div class="card"><h3>Tutela</h3><p class="muted">Cuando te niegan algo urgente: un medicamento, una cita, la ayuda como víctima. El juez decide en máximo 10 días.</p></div>
+      <div class="card"><h3>Seguimiento y avisos</h3><p class="muted">Te escribimos cuando se vence el plazo y te decimos qué hacer después.</p></div>
+    </div>
+    <a class="link-arrow" href="#servicios">Ver todos los servicios</a>
+  </div>
+
+  <div class="card" style="background:var(--surface-2);border:0">
+    <h3>Primera orientación gratis</h3>
+    <p class="muted">Responde las 4 preguntas sin pagar nada. Si te sirve, eliges una membresía desde $18.000 al mes. Los primeros 100 afiliados tienen 30% de descuento durante 3 meses.</p>
+    <a class="link-arrow" href="#membresias">Ver membresías y precios</a>
+  </div>
+</section>
+
+<!-- ============ CÓMO FUNCIONA ============ -->
+<section class="screen wrap narrow" id="v-como-funciona" data-view="como-funciona" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Cómo funciona</span>
+    <h1>Cinco pasos, todo desde WhatsApp</h1>
+    <p class="lead">No tienes que ir a la ciudad ni hacer filas. Si te pierdes en algún paso, una persona del equipo te atiende.</p>
+  </div>
+
+  <ol class="pasos">
+    <li class="paso"><span class="paso-n">1</span><div class="paso-body"><h3>Te registras</h3><p class="muted">Nos das tu nombre y tu número, y nos das permiso para usar tus datos solo para ayudarte. Así lo pide la ley de protección de datos.</p><span class="tag">1 minuto</span></div></li>
+    <li class="paso"><span class="paso-n">2</span><div class="paso-body"><h3>Respondes 4 preguntas</h3><p class="muted">Con qué entidad es el problema, qué pasó, desde cuándo y si pone en riesgo tu salud, tu casa o tu sustento. Puedes contestar con botones o con un audio.</p><span class="tag">Menos de 2 minutos</span></div></li>
+    <li class="paso"><span class="paso-n">3</span><div class="paso-body"><h3>Preparamos tu documento</h3><p class="muted">Con tus respuestas armamos la carta (derecho de petición) o la tutela. Un abogado titulado la revisa antes de que la envíes.</p><span class="tag">Revisado por abogado</span></div></li>
+    <li class="paso"><span class="paso-n">4</span><div class="paso-body"><h3>Te asesoramos a distancia</h3><p class="muted">Te explicamos dónde y cómo entregar el documento, por chat, audio o llamada.</p><span class="tag">Chat, audio o llamada</span></div></li>
+    <li class="paso"><span class="paso-n">5</span><div class="paso-body"><h3>Te avisamos de los plazos</h3><p class="muted">Llevamos la cuenta de los días. Si la entidad no responde a tiempo, te avisamos y te decimos qué sigue.</p><span class="tag">Alertas automáticas</span></div></li>
+  </ol>
+
+  <div class="stack">
+    <h2>Pensado para el campo</h2>
+    <div class="stack">
+      <div class="feature"><span class="ic"><svg aria-hidden="true"><use href="#i-mic"/></svg></span><div><h3>Habla en vez de escribir</h3><p class="muted">Manda notas de voz. El asistente las entiende y te responde también con audios.</p></div></div>
+      <div class="feature"><span class="ic"><svg aria-hidden="true"><use href="#i-signal"/></svg></span><div><h3>Modo de baja señal</h3><p class="muted">Mensajes cortos que gastan pocos datos. Si se cae la señal, guardamos lo que llevas y sigues después. Si no hay datos, te llamamos o te mandamos un SMS.</p></div></div>
+      <div class="feature"><span class="ic"><svg aria-hidden="true"><use href="#i-cash"/></svg></span><div><h3>Paga en efectivo</h3><p class="muted">Te damos un código y pagas en el Efecty o SuperGiros de tu pueblo. También por Nequi.</p></div></div>
+      <div class="feature"><span class="ic"><svg aria-hidden="true"><use href="#i-people"/></svg></span><div><h3>Con tu junta y tu líder</h3><p class="muted">Tu presidente de junta puede ayudarte a usar el servicio y ver cómo van los casos de la vereda.</p></div></div>
+    </div>
+  </div>
+
+  <a class="btn btn-primary btn-block" href="#" data-wa><svg aria-hidden="true"><use href="#i-chat"/></svg>Empezar mis 4 preguntas gratis</a>
+</section>
+
+<!-- ============ SERVICIOS ============ -->
+<section class="screen wrap" id="v-servicios" data-view="servicios" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Servicios</span>
+    <h1>Lo que podemos hacer por ti</h1>
+    <p class="lead">Te ayudamos con problemas con entidades del Estado y con empresas que prestan servicios públicos. Te explicamos todo en palabras sencillas.</p>
+  </div>
+
+  <div class="grid grid-2">
+    <article class="card doc-card">
+      <span class="ley">DERECHO DE PETICIÓN · Art. 23 Constitución · Ley 1755 de 2015</span>
+      <h2>Carta para exigir respuesta</h2>
+      <p class="muted">Es una carta que obliga a la entidad a contestarte. Sirve para pedir información, una copia, una cita, un pago o que corrijan un error.</p>
+      <div class="plazo"><strong>15</strong><span>días hábiles tiene la entidad para responderte</span></div>
+      <ul class="muted"><li>Te la escribimos con tus respuestas</li><li>El abogado la revisa</li><li>Te decimos dónde entregarla y guardamos la fecha</li></ul>
+    </article>
+    <article class="card doc-card">
+      <span class="ley">ACCIÓN DE TUTELA · Art. 86 Constitución · Decreto 2591 de 1991</span>
+      <h2>Tutela</h2>
+      <p class="muted">Es para cuando te niegan un derecho importante y no puedes esperar: salud, ayuda humanitaria, mínimo vital o cuando no te responden una petición.</p>
+      <div class="plazo"><strong>10</strong><span>días como máximo tiene el juez para decidir</span></div>
+      <ul class="muted"><li>Revisamos si tu caso es para tutela</li><li>El abogado prepara y revisa el escrito</li><li>Te acompañamos hasta el fallo</li></ul>
+    </article>
+  </div>
+
+  <div class="stack">
+    <h2>Problemas que más atendemos</h2>
+    <div class="temas">
+      <span>EPS y citas médicas</span><span>Medicamentos negados</span><span>Ayudas a víctimas</span><span>Sisbén</span><span>Colombia Mayor</span><span>Subsidios</span><span>Recibos de luz y agua</span><span>Alcaldía que no responde</span><span>Trámites de la junta</span><span>Permisos y licencias</span>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card"><h3>Orientación</h3><p class="muted">Te decimos qué hacer y ante quién, aunque no necesites un documento.</p></div>
+    <div class="card"><h3>Gestión de tu caso</h3><p class="muted">Llevamos el control de tus documentos, fechas y respuestas en un solo lugar.</p></div>
+    <div class="card"><h3>Abogado con prioridad</h3><p class="muted">En los casos difíciles, un abogado titulado habla contigo directamente.</p></div>
+  </div>
+
+  <p class="small muted">No llevamos procesos penales ni de familia. Si tu caso es de otro tipo, te decimos a dónde acudir.</p>
+
+  <a class="btn btn-primary" href="#membresias">Ver qué incluye cada membresía</a>
+</section>
+
+<!-- ============ MEMBRESÍAS ============ -->
+<section class="screen wrap" id="v-membresias" data-view="membresias" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Membresías de defensa jurídica</span>
+    <h1>Un pago fijo al mes. Sin cobros escondidos.</h1>
+    <p class="lead">Elige el plan según lo que necesites. Puedes cambiarlo cuando quieras.</p>
+  </div>
+
+  <div class="promo">
+    <p><b>Precio de lanzamiento:</b> los primeros 100 afiliados pagan 30% menos durante 3 meses.</p>
+    <p class="small">Tu primera orientación es gratis. Y por cada vecino que traigas, te damos un mes con descuento.</p>
+  </div>
+
+  <div class="planes" role="radiogroup" aria-label="Elige tu membresía" id="planes"></div>
+
+  <div class="stack">
+    <h3>Formas de pago</h3>
+    <div class="pagos"><span>Efecty</span><span>SuperGiros</span><span>Nequi</span><span>Tarjeta o PSE (Wompi / Bold)</span></div>
+  </div>
+
+  <div class="sticky-cta"><a class="btn btn-primary btn-block" href="#afiliarme" id="plan-cta">Afiliarme</a></div>
+
+  <p class="nota"><b>Nota de maqueta:</b> los precios son provisionales y se confirman con la encuesta en 5 corregimientos. Los nombres Consulta, Trámite y Defensa reemplazan a Oro, Platino y Diamante.</p>
+</section>
+
+<!-- ============ AFILIARME ============ -->
+<section class="screen wrap narrow" id="v-afiliarme" data-view="afiliarme" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Afiliarme</span>
+    <h1 id="af-title">Tus datos</h1>
+    <ol class="stepper" id="stepper" aria-label="Pasos de la afiliación">
+      <li>Datos</li><li>Plan</li><li>Permiso</li><li>Pago</li>
+    </ol>
+  </div>
+
+  <form id="af-form" class="stack" novalidate>
+    <!-- Paso 1 -->
+    <div class="stack" data-step="1">
+      <div class="field"><label for="af-nombre">Nombre completo</label><input type="text" id="af-nombre" autocomplete="name" value="María Elena Pérez"></div>
+      <div class="field"><label for="af-cel">Número de WhatsApp</label><input type="tel" id="af-cel" inputmode="numeric" autocomplete="tel" value="300 123 4567"><span class="hint">Por aquí te escribimos. No lo compartimos con nadie.</span></div>
+      <div class="field"><label for="af-mun">Municipio</label>
+        <select id="af-mun">
+          <option>Sincelejo</option><option>Corozal</option><option>Sampués</option><option>San Marcos</option><option>Tolú</option><option>Ovejas</option><option>Los Palmitos</option><option>Morroa</option><option>San Onofre</option><option>Majagual</option><option>Otro municipio de Sucre</option>
+        </select></div>
+      <div class="field"><label for="af-corr">Corregimiento o vereda</label><input type="text" id="af-corr" value="La Gallera"><span class="hint">Si no tienes, déjalo vacío.</span></div>
+      <label class="opt" for="af-lider"><input type="checkbox" id="af-lider"><span><b>Me invitó un líder o promotor</b><span class="muted small">Escribe su código en el siguiente paso.</span></span></label>
+    </div>
+
+    <!-- Paso 2 -->
+    <div class="stack" data-step="2" hidden>
+      <p class="muted">Elige tu membresía. Precio de lanzamiento por 3 meses.</p>
+      <div class="stack" id="af-planes"></div>
+      <div class="field" id="af-codigo-wrap" hidden><label for="af-codigo">Código de quien te invitó</label><input type="text" id="af-codigo" value="JAC-LAGALLERA" autocapitalize="characters"></div>
+    </div>
+
+    <!-- Paso 3 -->
+    <div class="stack" data-step="3" hidden>
+      <p class="lead">Antes de seguir, necesitamos tu permiso para usar tus datos.</p>
+      <div class="consent" tabindex="0" aria-label="Autorización de tratamiento de datos">
+        <p><b>Autorización de tratamiento de datos personales (Ley 1581 de 2012)</b></p>
+        <p>Autorizo a Legal Tech Sucre a guardar y usar mi nombre, número, municipio y la información de mi caso solo para orientarme, preparar mis documentos, hacerles seguimiento y avisarme de plazos.</p>
+        <p>Algunos datos de mi caso pueden ser sensibles, como mi salud o mi condición de víctima. Sé que no estoy obligado a darlos y que se guardan cifrados.</p>
+        <p>Puedo pedir en cualquier momento ver, corregir o borrar mis datos escribiendo por WhatsApp o en la sección Legales.</p>
+      </div>
+      <label class="opt" for="af-ok"><input type="checkbox" id="af-ok"><span><b>Sí, autorizo el uso de mis datos</b><span class="muted small">Puedes escuchar este texto en audio por WhatsApp.</span></span></label>
+      <label class="opt" for="af-ok2"><input type="checkbox" id="af-ok2"><span><b>Entiendo que el asistente orienta y un abogado titulado revisa mis documentos</b></span></label>
+      <p class="err" id="af-err3" hidden>Para continuar marca las dos casillas.</p>
+    </div>
+
+    <!-- Paso 4 -->
+    <div class="stack" data-step="4" hidden>
+      <p class="muted">¿Cómo quieres pagar?</p>
+      <label class="opt" for="pg-efecty"><input type="radio" name="pago" id="pg-efecty" value="efecty" checked><span><b>Efecty</b><span class="muted small">En efectivo, con un código.</span></span></label>
+      <label class="opt" for="pg-super"><input type="radio" name="pago" id="pg-super" value="supergiros"><span><b>SuperGiros</b><span class="muted small">En efectivo, con un código.</span></span></label>
+      <label class="opt" for="pg-nequi"><input type="radio" name="pago" id="pg-nequi" value="nequi"><span><b>Nequi</b><span class="muted small">Te mandamos el cobro a tu Nequi.</span></span></label>
+      <label class="opt" for="pg-web"><input type="radio" name="pago" id="pg-web" value="web"><span><b>Tarjeta o PSE</b><span class="muted small">Te mandamos un enlace de pago por WhatsApp.</span></span></label>
+    </div>
+
+    <!-- Resultado -->
+    <div class="stack" data-step="5" hidden>
+      <div class="ref" id="af-ref"></div>
+      <p class="muted">Cuando recibamos el pago, tu membresía se activa sola y te escribimos por WhatsApp.</p>
+      <a class="link-arrow" href="#inicio">Volver al inicio</a>
+    </div>
+
+    <div class="stack" id="af-nav">
+      <button type="submit" class="btn btn-primary btn-block" id="af-next">Continuar</button>
+      <button type="button" class="link-arrow" id="af-back" hidden style="background:none;border:0;font:inherit;cursor:pointer;align-self:center">Volver al paso anterior</button>
+    </div>
+  </form>
+
+  <p class="nota"><b>Nota de maqueta:</b> este formulario no guarda ni envía datos y no cobra nada. El código de pago es de ejemplo. Falta confirmar qué pasarela genera la referencia para Efecty y SuperGiros.</p>
+</section>
+
+<!-- ============ JUNTAS Y LÍDERES ============ -->
+<section class="screen wrap" id="v-juntas" data-view="juntas" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Juntas de acción comunal y líderes</span>
+    <h1>Que toda la vereda tenga quién la defienda</h1>
+    <p class="lead">Con el plan Comunitario, la junta o asociación afilia a sus miembros y el líder puede seguir los casos desde su celular.</p>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="stack">
+      <div class="card">
+        <span class="eyebrow">Plan Comunitario</span>
+        <p class="price"><span class="now">Desde $60.000 <small>al mes</small></span></p>
+        <ul class="muted" style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px">
+          <li>Orientación para los miembros de la junta</li>
+          <li>Documentos para trámites de la junta</li>
+          <li>Panel del líder para ver casos y plazos</li>
+          <li>Charlas por la emisora comunitaria</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Gana como promotor</h3>
+        <p class="muted">Cada líder, junta o promotor recibe un código y un QR propio. Gana el 10% de la membresía de cada persona que afilie, mientras esa persona siga activa.</p>
+      </div>
+    </div>
+
+    <div class="panel" aria-label="Ejemplo del panel del líder">
+      <div class="panel-head"><b>Panel del líder · JAC La Gallera</b><span class="tag">Ejemplo</span></div>
+      <div class="kpis">
+        <div class="kpi"><b>24</b><span>afiliados</span></div>
+        <div class="kpi"><b>7</b><span>casos abiertos</span></div>
+        <div class="kpi"><b style="color:var(--terracota)">2</b><span>plazos esta semana</span></div>
+      </div>
+      <ul class="casos">
+        <li><span>Petición a la EPS · cita de especialista<br><small>Entregada 21 oct · vence 12 nov</small></span><span class="pill warn">Vence pronto</span></li>
+        <li><span>Tutela · medicamento negado<br><small>Radicada 30 oct · el juez tiene 10 días para decidir</small></span><span class="pill wait">En el juzgado</span></li>
+        <li><span>Petición a la alcaldía · arreglo de vía<br><small>Respondida 3 nov</small></span><span class="pill ok">Respondida</span></li>
+        <li><span>Ayuda humanitaria · Unidad de Víctimas<br><small>En revisión del abogado</small></span><span class="pill wait">En revisión</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <a class="btn btn-primary" href="#contacto">Inscribir mi junta</a>
+  <p class="nota"><b>Nota de maqueta:</b> falta definir si el 10% se calcula sobre el precio completo o sobre el neto. Los casos del panel son de ejemplo.</p>
+</section>
+
+<!-- ============ QUIÉNES SOMOS ============ -->
+<section class="screen wrap narrow" id="v-quienes-somos" data-view="quienes-somos" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Quiénes somos</span>
+    <h1>Somos de Sucre y trabajamos para el campo</h1>
+    <p class="lead">En las veredas, reclamarle al Estado cuesta pasajes, días de trabajo y muchas vueltas. Por eso llevamos la asesoría al celular.</p>
+  </div>
+  <div class="stack">
+    <div class="feature"><span class="ic"><svg aria-hidden="true"><use href="#i-shield"/></svg></span><div><h3>Abogados de verdad</h3><p class="muted">El asistente te orienta, pero ningún documento sale sin la revisión de un abogado titulado.</p></div></div>
+    <div class="feature"><span class="ic"><svg aria-hidden="true"><use href="#i-people"/></svg></span><div><h3>De la mano de los líderes</h3><p class="muted">Trabajamos con juntas de acción comunal, asociaciones campesinas y organizaciones de víctimas.</p></div></div>
+    <div class="feature"><span class="ic"><svg aria-hidden="true"><use href="#i-radio"/></svg></span><div><h3>En la emisora de tu pueblo</h3><p class="muted">Explicamos tus derechos por la radio comunitaria, en palabras claras.</p></div></div>
+  </div>
+  <div class="card">
+    <h3>Para quién es</h3>
+    <p class="muted">Campesinos, adultos mayores, víctimas del conflicto, pequeños comerciantes y juntas de acción comunal de Sucre.</p>
+  </div>
+  <div class="card">
+    <h3>En qué vamos</h3>
+    <p class="muted">Estamos probando el servicio con personas de 5 corregimientos. El piloto en Sincelejo está previsto de febrero a julio de 2027.</p>
+  </div>
+  <p class="nota"><b>Nota de maqueta:</b> aquí van las fotos y los nombres del equipo y del abogado titulado que revisa los documentos.</p>
+  <a class="btn btn-primary" href="#" data-wa><svg aria-hidden="true"><use href="#i-chat"/></svg>Hablar con nosotros</a>
+</section>
+
+<!-- ============ PREGUNTAS ============ -->
+<section class="screen wrap narrow" id="v-preguntas" data-view="preguntas" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Preguntas frecuentes</span>
+    <h1>Lo que más nos preguntan</h1>
+  </div>
+  <div class="stack">
+    <details open><summary>¿Esto es un seguro?</summary><div class="ans"><p>No. Es una membresía de defensa jurídica: pagas un valor fijo al mes y te orientamos y preparamos tus documentos según tu plan.</p></div></details>
+    <details><summary>¿Quién revisa mis documentos?</summary><div class="ans"><p>Un abogado titulado. El asistente hace las preguntas y arma el borrador, pero el abogado lo revisa antes de que lo entregues.</p></div></details>
+    <details><summary>¿Me garantizan que voy a ganar?</summary><div class="ans"><p>Nadie puede prometer eso. Lo que sí hacemos es preparar bien tu documento, llevar la cuenta de los plazos y decirte qué hacer en cada paso.</p></div></details>
+    <details><summary>¿Necesito internet o un celular bueno?</summary><div class="ans"><p>Solo WhatsApp. Usamos mensajes cortos que gastan pocos datos. Si se cae la señal, guardamos lo que llevas. Si no tienes datos, te llamamos o te mandamos un SMS.</p></div></details>
+    <details><summary>No sé escribir bien. ¿Puedo usarlo?</summary><div class="ans"><p>Sí. Puedes mandar notas de voz y te respondemos con audios. Si lo prefieres, te atiende una persona por llamada.</p></div></details>
+    <details><summary>¿Cómo pago si no tengo cuenta en el banco?</summary><div class="ans"><p>Te damos un código y pagas en efectivo en Efecty o SuperGiros. También puedes pagar por Nequi.</p></div></details>
+    <details><summary>¿Qué hacen con mis datos?</summary><div class="ans"><p>Los usamos solo para ayudarte con tu caso, como dice la Ley 1581 de 2012. Los datos sensibles se guardan cifrados. Puedes pedir que los corrijamos o los borremos.</p></div></details>
+    <details><summary>¿Hay servicios gratis como la Defensoría o la Personería?</summary><div class="ans"><p>Sí, y puedes usarlos. Nosotros te respondemos de inmediato, a cualquier hora, y hacemos el seguimiento de tu caso por ti.</p></div></details>
+  </div>
+  <a class="btn btn-primary" href="#" data-wa><svg aria-hidden="true"><use href="#i-chat"/></svg>Tengo otra pregunta</a>
+</section>
+
+<!-- ============ CONTACTO ============ -->
+<section class="screen wrap narrow" id="v-contacto" data-view="contacto" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Contacto</span>
+    <h1>Escríbenos por WhatsApp</h1>
+    <p class="lead">El asistente responde a cualquier hora. El equipo atiende de lunes a sábado.</p>
+  </div>
+  <div class="card">
+    <div class="qr-box">
+      <div class="qr" data-qr aria-label="Código QR para abrir el chat de WhatsApp"></div>
+      <div class="stack" style="gap:8px;min-width:0">
+        <p class="muted">Escanea el código con la cámara o guarda este número:</p>
+        <div class="num"><output id="wa-num">+57 300 000 0000</output><button type="button" class="copy" id="copy-num">Copiar</button></div>
+        <p class="small muted">Número de ejemplo. Se cambia por el número real de prueba de Meta.</p>
+      </div>
+    </div>
+  </div>
+  <a class="btn btn-primary btn-block" href="#" data-wa><svg aria-hidden="true"><use href="#i-chat"/></svg>Abrir WhatsApp</a>
+
+  <form class="stack card" id="call-form" novalidate>
+    <h3>¿Prefieres que te llamemos?</h3>
+    <div class="field"><label for="c-nombre">Tu nombre</label><input type="text" id="c-nombre" autocomplete="name"></div>
+    <div class="field"><label for="c-cel">Tu número</label><input type="tel" id="c-cel" inputmode="numeric"></div>
+    <div class="field"><label for="c-msg">Cuéntanos en pocas palabras (opcional)</label><textarea id="c-msg"></textarea></div>
+    <button type="submit" class="btn btn-secondary">Pedir que me llamen</button>
+  </form>
+</section>
+
+<!-- ============ LEGALES ============ -->
+<section class="screen wrap narrow legal" id="v-legales" data-view="legales" hidden>
+  <div class="screen-head">
+    <span class="eyebrow">Legales</span>
+    <h1>Reglas claras</h1>
+  </div>
+  <div class="stack">
+    <h2>Tratamiento de datos personales</h2>
+    <p>Cumplimos la Ley 1581 de 2012 y el Decreto 1377 de 2013. Pedimos tu autorización antes de guardar cualquier dato.</p>
+    <ul>
+      <li><b>Qué datos guardamos:</b> nombre, número de celular, municipio y la información de tu caso.</li>
+      <li><b>Para qué:</b> orientarte, preparar tus documentos, hacer seguimiento y avisarte de plazos.</li>
+      <li><b>Datos sensibles:</b> la salud o la condición de víctima solo se piden si hacen falta para tu caso, y se guardan cifrados.</li>
+      <li><b>Tus derechos:</b> conocer, corregir, actualizar y pedir que borremos tus datos, y retirar tu autorización.</li>
+      <li><b>Cómo reclamar:</b> por WhatsApp. Si no te respondemos, puedes acudir a la Superintendencia de Industria y Comercio.</li>
+    </ul>
+  </div>
+  <div class="stack">
+    <h2>Términos del servicio</h2>
+    <ul>
+      <li>Es una membresía de defensa jurídica, no un seguro.</li>
+      <li>El asistente orienta. Un abogado titulado revisa todos los documentos antes de entregarlos.</li>
+      <li>No prometemos resultados: la decisión final es de la entidad o del juez.</li>
+      <li>La tarifa es fija cada mes y no hay cobros escondidos.</li>
+    </ul>
+  </div>
+  <div class="stack">
+    <h2>Propiedad intelectual</h2>
+    <p>Legal Tech Sucre™ y el eslogan «Justicia administrativa cerca de ti, sin importar dónde vivas» son signos distintivos del proyecto. Los textos, diseños, video y código están protegidos por derecho de autor. Las preguntas de orientación, las plantillas y la base de datos son secreto empresarial.</p>
+  </div>
+  <p class="nota"><b>Nota de maqueta:</b> estos textos son un borrador y debe revisarlos un abogado antes de publicarlos.</p>
+  <a class="btn btn-primary" href="#" data-wa><svg aria-hidden="true"><use href="#i-chat"/></svg>Pedir mis datos o borrarlos</a>
+</section>
+
+<!-- ============ EXPECTATIVA ============ -->
+<section class="screen wrap" id="v-pronto" data-view="pronto" hidden>
+  <div class="pronto">
+    <span class="eyebrow">Muy pronto en Sucre</span>
+    <h1>Pronto, tu abogado en el celular.</h1>
+    <p class="slogan">Justicia administrativa cerca de ti, sin importar dónde vivas.</p>
+    <div class="qr-box">
+      <div class="qr" data-qr aria-label="Código QR para abrir el chat de WhatsApp"></div>
+      <p class="muted" style="max-width:30ch">Escanea y te avisamos por WhatsApp el día que abramos.</p>
+    </div>
+    <a class="btn btn-primary" href="#" data-wa><svg aria-hidden="true"><use href="#i-bell"/></svg>Avísame cuando abra</a>
+  </div>
+</section>
+
+</main>
+
+<a class="fab" href="#" data-wa aria-label="Escribir por WhatsApp"><svg aria-hidden="true"><use href="#i-chat"/></svg><span>WhatsApp</span></a>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#inicio"><svg aria-hidden="true"><use href="#i-logo"/></svg><span>Legal Tech Sucre<sup>™</sup></span></a>
+    <p class="muted">Justicia administrativa cerca de ti, sin importar dónde vivas.</p>
+    <nav class="foot-links" aria-label="Pie de página">
+      <a href="#como-funciona">Cómo funciona</a><a href="#servicios">Servicios</a><a href="#membresias">Membresías</a><a href="#afiliarme">Afiliarme</a><a href="#juntas">Juntas y líderes</a><a href="#quienes-somos">Quiénes somos</a><a href="#preguntas">Preguntas</a><a href="#contacto">Contacto</a><a href="#legales">Legales</a>
+    </nav>
+    <div class="legal-line">
+      <span>El asistente orienta y un abogado titulado revisa tus documentos.</span>
+      <span>Legal Tech Sucre™ · © 2026 Legal Tech Sucre. Todos los derechos reservados.</span>
+    </div>
+    <span class="maqueta">Maqueta de prueba · no guarda datos ni cobra</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+  const WA_NUM = "573000000000";
+  const WA_TXT = "Hola Legal Tech Sucre, quiero orientación";
+  const WA_URL = "https://wa.me/" + WA_NUM + "?text=" + encodeURIComponent(WA_TXT);
+  document.querySelectorAll("[data-wa]").forEach(a => { a.href = WA_URL; a.target = "_blank"; a.rel = "noopener"; });
+
+  // QR
+  const qrTpl = document.getElementById("qr-tpl").innerHTML;
+  document.querySelectorAll("[data-qr]").forEach(el => el.innerHTML = qrTpl);
+
+  // Toast
+  const toast = document.getElementById("toast"); let tt;
+  function say(msg){ toast.textContent = msg; toast.hidden = false; clearTimeout(tt); tt = setTimeout(()=>toast.hidden = true, 3200); }
+
+  // ---------- Rutas ----------
+  const views = [...document.querySelectorAll("[data-view]")];
+  const names = views.map(v => v.dataset.view);
+  const titles = {"inicio":"Inicio","como-funciona":"Cómo funciona","servicios":"Servicios","membresias":"Membresías","afiliarme":"Afiliarme","juntas":"Juntas y líderes","quienes-somos":"Quiénes somos","preguntas":"Preguntas frecuentes","contacto":"Contacto","legales":"Legales","pronto":"Pronto"};
+  function route(){
+    let h = (location.hash || "").slice(1);
+    if (!names.includes(h)) h = "inicio";
+    views.forEach(v => v.hidden = v.dataset.view !== h);
+    document.querySelectorAll(".nav-inline a, .drawer a").forEach(a => {
+      if (a.getAttribute("href") === "#" + h) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current");
+    });
+    document.title = "Legal Tech Sucre" + (h === "inicio" ? "" : " · " + titles[h]);
+    closeMenu();
+    window.scrollTo(0,0);
+    if (h === "afiliarme") renderAf();
+  }
+  window.addEventListener("hashchange", route);
+
+  // ---------- Menú ----------
+  const drawer = document.getElementById("drawer"), openB = document.getElementById("menu-open");
+  function closeMenu(){ drawer.hidden = true; openB.setAttribute("aria-expanded","false"); }
+  openB.addEventListener("click", () => { drawer.hidden = false; openB.setAttribute("aria-expanded","true"); document.getElementById("menu-close").focus(); });
+  document.getElementById("menu-close").addEventListener("click", closeMenu);
+  drawer.addEventListener("click", e => { if (e.target === drawer) closeMenu(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
+
+  // ---------- Triaje (ejemplo) ----------
+  const chat = document.getElementById("chat");
+  const Q = [
+    {q:"¿Con qué entidad tienes el problema?", a:["Alcaldía","EPS o salud","Unidad de Víctimas","Otra"]},
+    {q:"¿Qué te pasó?", a:["No me responden","Me negaron algo","Me cobran mal","Otra cosa"]},
+    {q:"¿Hace cuánto empezó?", a:["Menos de 15 días","Más de 15 días","Más de 3 meses"]},
+    {q:"¿Pone en riesgo tu salud, tu casa o tu comida?", a:["Sí","No"]}
+  ];
+  let ans = [];
+  function bubble(text, out, step){
+    const d = document.createElement("div"); d.className = "msg" + (out ? " out" : "");
+    if (step) { const s = document.createElement("span"); s.className = "step"; s.textContent = step; d.appendChild(s); }
+    d.appendChild(document.createTextNode(text)); chat.appendChild(d);
+  }
+  function chips(list){
+    const w = document.createElement("div"); w.className = "chips";
+    list.forEach(t => { const b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = t;
+      b.addEventListener("click", () => { w.remove(); bubble(t, true); ans.push(t); next(); }); w.appendChild(b); });
+    chat.appendChild(w);
+  }
+  function next(){
+    const i = ans.length;
+    if (i < Q.length) { bubble(Q[i].q, false, "Pregunta " + (i+1) + " de 4"); chips(Q[i].a); return; }
+    const urgente = ans[3] === "Sí" && (ans[1] === "Me negaron algo" || ans[0] === "EPS o salud" || ans[0] === "Unidad de Víctimas");
+    if (urgente) bubble("Tu caso puede ser para una tutela, porque está en riesgo algo urgente. Un abogado titulado revisa tu caso hoy mismo y te dice si procede.", false, "Resultado");
+    else bubble("Te sirve una carta para exigir respuesta (derecho de petición). La preparamos con tus respuestas, el abogado la revisa y la entidad tendrá 15 días hábiles para contestarte.", false, "Resultado");
+    bubble("¿Quieres que la preparemos? Esta primera orientación fue gratis.", false);
+  }
+  function resetChat(){ chat.innerHTML = ""; ans = []; bubble("¡Hola! Soy el asistente de Legal Tech Sucre. Te hago 4 preguntas para saber cómo ayudarte.", false); next(); }
+  document.getElementById("chat-reset").addEventListener("click", resetChat);
+  resetChat();
+
+  // ---------- Planes ----------
+  const PLANES = [
+    {id:"consulta", n:"Consulta", p:18000, inc:["Preguntas de orientación sin límite","Orientación básica sobre qué hacer y ante quién"], para:"Para saber qué hacer con tu problema."},
+    {id:"tramite", n:"Trámite", p:28000, inc:["Todo lo del plan Consulta","Cartas para exigir respuesta (derechos de petición)","Seguimiento de tu caso y avisos de plazos"], para:"Para cuando una entidad no te responde.", top:true},
+    {id:"defensa", n:"Defensa", p:38000, inc:["Todo lo del plan Trámite","Tutelas","Abogado con prioridad"], para:"Para casos urgentes de salud, víctimas o mínimo vital."},
+    {id:"comunitario", n:"Comunitario", p:60000, desde:true, inc:["Para juntas y asociaciones","Afilia a varios miembros","Panel del líder"], para:"Para la junta de tu vereda o tu asociación."}
+  ];
+  const fmt = n => "$" + Math.round(n).toLocaleString("es-CO").replace(/,/g,".");
+  const promo = p => Math.round(p * 0.7 / 100) * 100;
+  let plan = "tramite";
+  const planesEl = document.getElementById("planes");
+  function renderPlanes(){
+    planesEl.innerHTML = "";
+    PLANES.forEach(pl => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "plan"; b.setAttribute("role","radio");
+      b.setAttribute("aria-checked", String(pl.id === plan)); b.id = "plan-" + pl.id;
+      b.innerHTML = (pl.top ? '<span class="badge">El más pedido</span>' : '') +
+        '<span class="plan-top"><span class="plan-name">' + pl.n + '</span><span class="radio" aria-hidden="true"></span></span>' +
+        '<span class="price"><span class="now">' + (pl.desde ? "Desde " : "") + fmt(promo(pl.p)) + ' <small>al mes</small></span>' +
+        '<span class="was">Precio normal: ' + fmt(pl.p) + ' al mes</span></span>' +
+        '<ul>' + pl.inc.map(i => "<li>" + i + "</li>").join("") + '</ul>' +
+        '<span class="para">' + pl.para + '</span>';
+      b.addEventListener("click", () => { plan = pl.id; renderPlanes(); });
+      planesEl.appendChild(b);
+    });
+    const cur = PLANES.find(x => x.id === plan);
+    document.getElementById("plan-cta").textContent = "Afiliarme al plan " + cur.n;
+  }
+  renderPlanes();
+
+  // ---------- Afiliación ----------
+  let step = 1;
+  const form = document.getElementById("af-form");
+  const stepTitles = {1:"Tus datos",2:"Tu membresía",3:"Permiso para usar tus datos",4:"Forma de pago",5:"¡Listo! Ya casi eres miembro"};
+  function renderAfPlanes(){
+    const w = document.getElementById("af-planes"); w.innerHTML = "";
+    PLANES.forEach(pl => {
+      const l = document.createElement("label"); l.className = "opt"; l.setAttribute("for","afp-" + pl.id);
+      l.innerHTML = '<input type="radio" name="afplan" id="afp-' + pl.id + '" value="' + pl.id + '"' + (pl.id === plan ? " checked" : "") + '>' +
+        '<span><b>' + pl.n + ' · ' + (pl.desde ? "desde " : "") + fmt(promo(pl.p)) + ' al mes</b><span class="muted small">' + pl.para + ' Precio normal ' + fmt(pl.p) + '.</span></span>';
+      l.querySelector("input").addEventListener("change", e => { plan = e.target.value; renderPlanes(); });
+      w.appendChild(l);
+    });
+  }
+  function renderAf(){
+    form.querySelectorAll("[data-step]").forEach(s => s.hidden = Number(s.dataset.step) !== step);
+    document.getElementById("af-title").textContent = stepTitles[step];
+    [...document.querySelectorAll("#stepper li")].forEach((li,i) => { li.className = (i+1 < step) ? "done" : (i+1 === step ? "cur" : ""); });
+    document.getElementById("af-next").textContent = step === 4 ? "Generar mi código de pago" : "Continuar";
+    document.getElementById("af-nav").hidden = step === 5;
+    document.getElementById("af-back").hidden = step === 1;
+    if (step === 2) { renderAfPlanes(); document.getElementById("af-codigo-wrap").hidden = !document.getElementById("af-lider").checked; }
+  }
+  function refCode(){
+    const d = new Date(); const yymm = String(d.getFullYear()).slice(2) + String(d.getMonth()+1).padStart(2,"0");
+    return "LTS-" + yymm + "-" + String(Math.floor(1000 + Math.random()*9000));
+  }
+  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    if (step === 1) {
+      const n = document.getElementById("af-nombre"), c = document.getElementById("af-cel");
+      if (!n.value.trim() || c.value.replace(/\D/g,"").length < 10) { say("Escribe tu nombre y un número de 10 dígitos."); (n.value.trim() ? c : n).focus(); return; }
+    }
+    if (step === 3) {
+      const ok = document.getElementById("af-ok").checked && document.getElementById("af-ok2").checked;
+      document.getElementById("af-err3").hidden = ok; if (!ok) return;
+    }
+    if (step === 4) {
+      const pl = PLANES.find(x => x.id === plan);
+      const metodo = form.querySelector('input[name="pago"]:checked').value;
+      const ref = document.getElementById("af-ref");
+      const valor = fmt(promo(pl.p));
+      const nombre = esc(document.getElementById("af-nombre").value.trim());
+      let body;
+      if (metodo === "efecty" || metodo === "supergiros") {
+        const lugar = metodo === "efecty" ? "Efecty" : "SuperGiros";
+        const code = refCode();
+        body = '<span class="eyebrow">Tu código de pago · ' + lugar + '</span><span class="ref-code" id="ref-code">' + code + '</span>' +
+          '<p>Ve a cualquier ' + lugar + ', di que vas a pagar a <b>Legal Tech Sucre</b> y da este código.</p>' +
+          '<button type="button" class="copy" id="copy-ref">Copiar código</button>';
+      } else if (metodo === "nequi") {
+        body = '<span class="eyebrow">Pago por Nequi</span><p>Te enviamos el cobro a tu Nequi en unos minutos. Solo tienes que aceptarlo.</p>';
+      } else {
+        body = '<span class="eyebrow">Pago con tarjeta o PSE</span><p>Te mandamos el enlace de pago por WhatsApp en unos minutos.</p>';
+      }
+      ref.innerHTML = body + '<dl class="resumen"><dt>Miembro</dt><dd>' + nombre + '</dd><dt>Plan</dt><dd>' + pl.n + '</dd><dt>Valor primer mes</dt><dd>' + valor + '</dd><dt>Precio normal</dt><dd>' + fmt(pl.p) + '</dd></dl>';
+      const cb = document.getElementById("copy-ref");
+      if (cb) cb.addEventListener("click", () => copy(document.getElementById("ref-code").textContent, document.getElementById("ref-code")));
+    }
+    step = Math.min(5, step + 1); renderAf(); window.scrollTo(0,0);
+  });
+  document.getElementById("af-back").addEventListener("click", () => { step = Math.max(1, step - 1); renderAf(); });
+
+  // ---------- Copiar ----------
+  function copy(text, el){
+    const done = () => say("Copiado: " + text);
+    try {
+      navigator.clipboard.writeText(text).then(done, () => sel(el));
+    } catch(_) { sel(el); }
+  }
+  function sel(el){ try { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); say("Texto seleccionado. Cópialo con tu teclado."); } catch(_){} }
+  document.getElementById("copy-num").addEventListener("click", () => copy(document.getElementById("wa-num").textContent, document.getElementById("wa-num")));
+
+  // ---------- Contacto ----------
+  document.getElementById("call-form").addEventListener("submit", e => { e.preventDefault(); say("Maqueta: aquí el equipo recibiría tu solicitud de llamada."); });
+
+  route();
+})();
+</script>
+
+</body>
+</html>
