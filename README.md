@@ -22,9 +22,12 @@ Inicio · Cómo funciona · Servicios · Membresías · Afiliarme · Juntas y l�
 
 Abre `index.html` en cualquier navegador, o entra a la versión publicada en GitHub Pages.
 
+## Contacto
+
+WhatsApp: +57 310 485 0697
+
 ## Pendientes
 
-- Cambiar el número de WhatsApp de ejemplo (`WA_NUM` en el script) y regenerar el QR.
 - Validar con un abogado las 4 preguntas del triaje, las plantillas y los textos legales.
 - Confirmar precios con la encuesta en 5 corregimientos.
 - Confirmar la pasarela que genera la referencia de pago para Efecty y SuperGiros.
