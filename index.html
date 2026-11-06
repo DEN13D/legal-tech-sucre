@@ -264,6 +264,41 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
 .maqueta{display:inline-flex;align-self:flex-start;gap:8px;align-items:center;font-size:.82rem;font-weight:800;color:var(--tierra);border:2px dashed var(--tierra);padding:4px 10px;border-radius:8px}
 
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:700;z-index:50;max-width:calc(100% - 32px);text-align:center}
+
+/* Tarjeta de documento en el chat + vista previa del PDF */
+:root{--paper:#FFFFFF;--paper-ink:#1D1A16;--paper-mark:#FBE7A1}
+.doc-msg{padding:8px;display:flex;flex-direction:column;gap:8px;width:86%}
+.doc-file{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center;background:var(--surface-2);border-radius:10px;padding:10px}
+.doc-ic{width:42px;height:50px;border-radius:6px;background:var(--terracota);color:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.doc-ic svg{width:20px;height:20px}
+.doc-ic b{font-size:.68rem;letter-spacing:.04em}
+.doc-meta{display:flex;flex-direction:column;min-width:0}
+.doc-meta b{font-size:.9rem;overflow-wrap:anywhere;line-height:1.3}
+.doc-meta small{font-size:.78rem;color:var(--ink-soft)}
+.doc-state{font-size:.8rem;font-weight:700;color:var(--terracota);display:flex;align-items:center;gap:6px}
+.doc-state::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.doc-open{min-height:46px;border-radius:10px;border:0;background:var(--verde);color:var(--on-verde);font:inherit;font-size:.98rem;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.doc-open svg{width:20px;height:20px}
+.pdf-modal{position:fixed;inset:0;z-index:60;background:rgb(0 0 0 / .62);display:flex;align-items:center;justify-content:center;padding:calc(12px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.pdf-shell{width:min(720px,100%);max-height:100%;display:flex;flex-direction:column;background:var(--surface-2);border-radius:16px;overflow:hidden}
+.pdf-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border-bottom:1px solid var(--line)}
+.pdf-bar b{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.95rem}
+.pdf-tag{background:var(--terracota);color:var(--surface);font-size:.72rem;font-weight:800;padding:3px 7px;border-radius:5px;flex:none}
+.pdf-close{width:46px;height:46px;flex:none;border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.pdf-close svg{width:22px;height:22px}
+.pdf-scroll{overflow-y:auto;padding:16px;min-height:0}
+.paper{background:var(--paper);color:var(--paper-ink);font-family:Georgia,"Times New Roman",Times,serif;font-size:15px;line-height:1.6;padding:clamp(20px,6vw,48px);border-radius:4px;box-shadow:0 2px 12px rgb(0 0 0 / .22);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px}
+.paper::after{content:"BORRADOR";position:absolute;top:38%;left:50%;transform:translate(-50%,-50%) rotate(-28deg);font:800 clamp(48px,14vw,104px)/1 var(--font);color:rgb(174 79 39 / .11);letter-spacing:.12em;pointer-events:none;white-space:nowrap}
+.paper p{margin:0}
+.paper h4{margin:4px 0 0;font-size:14px;text-transform:uppercase;letter-spacing:.06em}
+.paper ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.paper mark{background:var(--paper-mark);color:inherit;padding:0 3px;border-radius:3px}
+.paper .p-right{text-align:right}
+.paper .firma{margin-top:28px;border-top:1px solid var(--paper-ink);width:min(240px,100%);padding-top:4px}
+.paper .p-folio{font-family:var(--mono);font-size:11px;color:#6B6257;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-bottom:1px solid #DDD6C8;padding-bottom:8px}
+.pdf-foot{padding:10px 14px;font-size:.85rem;color:var(--ink-soft);background:var(--surface);border-top:1px solid var(--line);display:flex;gap:6px 14px;align-items:center;flex-wrap:wrap}
+.pdf-foot .sw{display:inline-flex;align-items:center;gap:6px}
+.pdf-foot .sw::before{content:"";width:14px;height:14px;border-radius:3px;background:var(--paper-mark);border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -720,6 +755,14 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
   </div>
 </footer>
 
+<div class="pdf-modal" id="pdf-modal" hidden role="dialog" aria-modal="true" aria-labelledby="pdf-name">
+  <div class="pdf-shell">
+    <div class="pdf-bar"><span class="pdf-tag">PDF</span><b id="pdf-name">Borrador.pdf</b><button type="button" class="pdf-close" id="pdf-close" aria-label="Cerrar vista previa"><svg aria-hidden="true"><use href="#i-close"/></svg></button></div>
+    <div class="pdf-scroll"><article class="paper" id="paper"></article></div>
+    <div class="pdf-foot"><span class="sw">Resaltado: salió de tus respuestas o falta completarlo</span><span>Un abogado titulado lo revisa antes de enviarlo.</span></div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
@@ -787,10 +830,95 @@ footer .wrap{padding-block:28px calc(96px + env(safe-area-inset-bottom,0px));dis
     const i = ans.length;
     if (i < Q.length) { bubble(Q[i].q, false, "Pregunta " + (i+1) + " de 4"); chips(Q[i].a); return; }
     const urgente = ans[3] === "Sí" && (ans[1] === "Me negaron algo" || ans[0] === "EPS o salud" || ans[0] === "Unidad de Víctimas");
-    if (urgente) bubble("Tu caso puede ser para una tutela, porque está en riesgo algo urgente. Un abogado titulado revisa tu caso hoy mismo y te dice si procede.", false, "Resultado");
-    else bubble("Te sirve una carta para exigir respuesta (derecho de petición). La preparamos con tus respuestas, el abogado la revisa y la entidad tendrá 15 días hábiles para contestarte.", false, "Resultado");
-    bubble("¿Quieres que la preparemos? Esta primera orientación fue gratis.", false);
+    if (urgente) bubble("Tu caso puede ser para una tutela, porque está en riesgo algo urgente.", false, "Resultado");
+    else bubble("Te sirve una carta para exigir respuesta (derecho de petición). La entidad tendrá 15 días hábiles para contestarte.", false, "Resultado");
+    bubble("Listo. Con tus respuestas preparé este borrador:", false);
+    docCard(urgente);
+    bubble("Un abogado titulado lo revisa hoy mismo antes de que lo envíes. Esta primera orientación fue gratis.", false);
   }
+
+  // ---------- Borrador del documento (vista previa del PDF) ----------
+  const M = t => "<mark>" + t + "</mark>";
+  const ENT = {"Alcaldía":"ALCALDÍA MUNICIPAL DE [MUNICIPIO]","EPS o salud":"[NOMBRE DE LA EPS]","Unidad de Víctimas":"UNIDAD PARA LA ATENCIÓN Y REPARACIÓN INTEGRAL A LAS VÍCTIMAS","Otra":"[NOMBRE DE LA ENTIDAD]"};
+  const TIEMPO = {"Menos de 15 días":"hace menos de 15 días","Más de 15 días":"hace más de 15 días","Más de 3 meses":"hace más de tres meses"};
+  const HECHO = {
+    "No me responden":"Presenté una solicitud ante esta entidad y " + M("no he recibido respuesta"),
+    "Me negaron algo":"La entidad " + M("negó mi solicitud") + " de " + M("[lo que se pidió]"),
+    "Me cobran mal":"La entidad " + M("me está cobrando un valor que considero incorrecto"),
+    "Otra cosa":M("[Descripción de lo que pasó]")
+  };
+  const PET = {
+    "No me responden":"Que se responda de fondo, de manera clara y completa, la solicitud que presenté.",
+    "Me negaron algo":"Que se revise la decisión y se me conceda lo solicitado, o que se expliquen por escrito las razones de la negación.",
+    "Me cobran mal":"Que se revise el cobro, se corrija el valor y se me entregue el soporte del cálculo.",
+    "Otra cosa":M("[Lo que se le pide a la entidad]") + "."
+  };
+  const PRET = {
+    "No me responden":"dé respuesta de fondo a la solicitud que presenté.",
+    "Me negaron algo":"autorice y entregue lo solicitado: " + M("[medicamento, cita, tratamiento o ayuda]") + ".",
+    "Me cobran mal":"suspenda el cobro mientras se revisa y corrija el valor.",
+    "Otra cosa":M("[lo que se le pide a la entidad]") + "."
+  };
+  function docName(t){ return t ? "Tutela_borrador.pdf" : "Derecho_de_peticion_borrador.pdf"; }
+  function docCard(tutela){
+    const d = document.createElement("div"); d.className = "msg doc-msg";
+    d.innerHTML = '<div class="doc-file"><span class="doc-ic" aria-hidden="true"><svg><use href="#i-doc"/></svg><b>PDF</b></span>' +
+      '<span class="doc-meta"><b>' + docName(tutela) + '</b><small>' + (tutela ? "3 páginas" : "2 páginas") + ' · PDF · generado en 1 minuto</small></span></div>' +
+      '<span class="doc-state">Pendiente de revisión del abogado</span>' +
+      '<button type="button" class="doc-open"><svg aria-hidden="true"><use href="#i-doc"/></svg>Ver borrador en PDF</button>';
+    d.querySelector(".doc-open").addEventListener("click", e => openDoc(tutela, e.currentTarget));
+    chat.appendChild(d);
+  }
+  function buildDoc(tutela){
+    const ent = ENT[ans[0]] || ENT["Otra"], t = TIEMPO[ans[2]] || "", hecho = HECHO[ans[1]] || HECHO["Otra cosa"];
+    const riesgo = ans[3] === "Sí";
+    const fecha = new Date().toLocaleDateString("es-CO", {day:"numeric", month:"long", year:"numeric"});
+    const folio = "LTS-" + String(new Date().getFullYear()).slice(2) + String(new Date().getMonth()+1).padStart(2,"0") + "-" + (tutela ? "T" : "P") + "0042";
+    const quien = "Yo, " + M("[Nombre completo]") + ", identificado(a) con cédula de ciudadanía No. " + M("[número]") + ", residente en " + M("[vereda o corregimiento]") + ", ";
+    const cierre = '<h4>Notificaciones</h4><p>Recibiré respuesta en ' + M("[dirección]") + ' y en el celular y WhatsApp ' + M("[número]") + '.</p>' +
+      '<p>Atentamente,</p><div class="firma">' + M("[Nombre completo]") + '<br>C.C. ' + M("[número]") + '</div>';
+    let h = '<div class="p-folio"><span>Legal Tech Sucre · ' + folio + '</span><span>Borrador sin revisar</span></div>' +
+      '<p class="p-right">' + M("[Municipio]") + ', ' + fecha + '</p>';
+    if (!tutela) {
+      h += '<p>Señores<br><b>' + M(ent) + '</b><br>E. S. D.</p>' +
+        '<p><b>Referencia:</b> Derecho de petición (artículo 23 de la Constitución Política y Ley 1755 de 2015).</p>' +
+        '<p>' + quien + 'en ejercicio del derecho fundamental de petición, me dirijo a ustedes con base en los siguientes:</p>' +
+        '<h4>Hechos</h4><ol><li>' + hecho + '. La situación empezó ' + M(t) + '.</li>' +
+        (riesgo ? '<li>Esta situación ' + M("pone en riesgo mi salud, mi vivienda o mi sustento") + '.</li>' : '') +
+        '<li>A la fecha la situación no se ha resuelto.</li></ol>' +
+        '<h4>Peticiones</h4><ol><li>' + PET[ans[1]] + '</li><li>Que la respuesta se dé dentro de los 15 días hábiles que fija la Ley 1755 de 2015.</li></ol>' + cierre;
+    } else {
+      let der = ["la vida digna"];
+      if (ans[0] === "EPS o salud") der.unshift("la salud");
+      if (ans[0] === "Unidad de Víctimas") der.unshift("la atención y reparación como víctima", "el mínimo vital");
+      if (ans[0] === "Alcaldía" || ans[0] === "Otra") der.unshift("el mínimo vital");
+      if (ans[1] === "No me responden") der.push("el derecho de petición");
+      const derTxt = der.length > 1 ? der.slice(0,-1).join(", ") + " y " + der[der.length-1] : der[0];
+      h += '<p>Señor(a)<br><b>JUEZ (REPARTO)</b><br>E. S. D.</p>' +
+        '<p><b>Referencia:</b> Acción de tutela (artículo 86 de la Constitución Política y Decreto 2591 de 1991).<br><b>Accionante:</b> ' + M("[Nombre completo]") + '<br><b>Accionado:</b> ' + M(ent) + '</p>' +
+        '<p>' + quien + 'acudo a usted para pedir la protección de mis derechos fundamentales, con base en los siguientes:</p>' +
+        '<h4>Hechos</h4><ol><li>' + hecho + '. La situación empezó ' + M(t) + '.</li>' +
+        '<li>Esta situación ' + M("pone en riesgo mi salud, mi vivienda o mi sustento") + '.</li>' +
+        '<li>No cuento con otro medio rápido y eficaz para proteger mis derechos.</li></ol>' +
+        '<h4>Derechos vulnerados</h4><p>' + M(derTxt.charAt(0).toUpperCase() + derTxt.slice(1)) + '.</p>' +
+        '<h4>Pretensiones</h4><ol><li>Tutelar mis derechos fundamentales a ' + M(derTxt) + '.</li><li>Ordenar a ' + M(ent) + ' que, en un plazo máximo de 48 horas, ' + PRET[ans[1]] + '</li></ol>' +
+        '<h4>Juramento</h4><p>Manifiesto bajo la gravedad del juramento que no he presentado otra acción de tutela por los mismos hechos y derechos (artículo 37 del Decreto 2591 de 1991).</p>' +
+        '<h4>Pruebas</h4><ol><li>Copia de mi cédula de ciudadanía.</li><li>' + M("[Documentos del caso: orden médica, respuesta de la entidad, radicado]") + '</li></ol>' + cierre;
+    }
+    return h;
+  }
+  const modal = document.getElementById("pdf-modal"); let lastFocus = null;
+  function openDoc(tutela, from){
+    lastFocus = from || null;
+    document.getElementById("pdf-name").textContent = docName(tutela);
+    document.getElementById("paper").innerHTML = buildDoc(tutela);
+    modal.hidden = false; modal.querySelector(".pdf-scroll").scrollTop = 0;
+    document.getElementById("pdf-close").focus();
+  }
+  function closeDoc(){ if (modal.hidden) return; modal.hidden = true; if (lastFocus) lastFocus.focus(); }
+  document.getElementById("pdf-close").addEventListener("click", closeDoc);
+  modal.addEventListener("click", e => { if (e.target === modal) closeDoc(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeDoc(); });
   function resetChat(){ chat.innerHTML = ""; ans = []; bubble("¡Hola! Soy el asistente de Legal Tech Sucre. Te hago 4 preguntas para saber cómo ayudarte.", false); next(); }
   document.getElementById("chat-reset").addEventListener("click", resetChat);
   resetChat();
