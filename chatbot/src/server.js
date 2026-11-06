@@ -90,8 +90,10 @@ app.get("/", (_req, res) => res.type("text").send("Chatbot de Legal Tech Sucre a
 // Verificación del webhook (Meta la hace una vez al configurarlo).
 app.get("/webhook", (req, res) => {
   if (req.query["hub.mode"] === "subscribe" && VERIFY_TOKEN && req.query["hub.verify_token"] === VERIFY_TOKEN) {
+    console.log("Webhook verificado por Meta.");
     return res.status(200).send(req.query["hub.challenge"]);
   }
+  console.warn("Verificación del webhook rechazada: el token de verificación no coincide con VERIFY_TOKEN.");
   res.sendStatus(403);
 });
 
@@ -101,6 +103,7 @@ app.post("/webhook", (req, res) => {
     const firma = req.get("x-hub-signature-256") || "";
     const esperada = "sha256=" + crypto.createHmac("sha256", APP_SECRET).update(req.crudo || "").digest("hex");
     if (firma.length !== esperada.length || !crypto.timingSafeEqual(Buffer.from(firma), Buffer.from(esperada))) {
+      console.warn("Webhook rechazado: la firma no coincide. Revise que APP_SECRET sea la 'Clave secreta de la app' de Meta.");
       return res.sendStatus(401);
     }
   }
@@ -109,7 +112,11 @@ app.post("/webhook", (req, res) => {
     for (const change of entry.changes || []) {
       const v = change.value || {};
       const perfil = v.contacts && v.contacts[0] && v.contacts[0].profile ? v.contacts[0].profile.name : "";
+      const nMsg = (v.messages || []).length, nEst = (v.statuses || []).length;
+      console.log("Webhook recibido (" + change.field + "): " + nMsg + " mensaje(s), " + nEst + " estado(s)" +
+        (nEst ? " · " + v.statuses.map((s) => s.status + (s.errors ? " " + JSON.stringify(s.errors) : "")).join(", ") : ""));
       for (const m of v.messages || []) {
+        console.log("Mensaje de +" + m.from + " tipo " + m.type);
         if (yaVisto(m.id)) continue;
         enCola(m.from, () => procesar(m, perfil)).catch((e) => console.error("Error procesando:", e));
       }
@@ -135,7 +142,12 @@ if (require.main === module) {
   if (!wa.DRY_RUN && (!process.env.WHATSAPP_TOKEN || !process.env.PHONE_NUMBER_ID || !VERIFY_TOKEN)) {
     console.warn("Faltan variables: WHATSAPP_TOKEN, PHONE_NUMBER_ID y VERIFY_TOKEN. Revise el archivo .env.example");
   }
-  app.listen(PUERTO, () => console.log("Chatbot escuchando en el puerto " + PUERTO));
+  app.listen(PUERTO, () => {
+    console.log("Chatbot escuchando en el puerto " + PUERTO);
+    console.log("Configuración: WHATSAPP_TOKEN " + (process.env.WHATSAPP_TOKEN ? "sí (" + process.env.WHATSAPP_TOKEN.length + " caracteres)" : "FALTA") +
+      " · PHONE_NUMBER_ID " + (process.env.PHONE_NUMBER_ID || "FALTA") + " · VERIFY_TOKEN " + (VERIFY_TOKEN ? "sí" : "FALTA") +
+      " · APP_SECRET " + (APP_SECRET ? "sí" : "no (no se revisa la firma)") + " · API " + (process.env.GRAPH_VERSION || "v25.0"));
+  });
 }
 
 module.exports = { app, procesar, leerEntrada };
