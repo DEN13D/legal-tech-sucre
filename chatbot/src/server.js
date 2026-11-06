@@ -29,7 +29,7 @@ async function ejecutar(numero, acciones) {
         if (EQUIPO) await wa.texto(EQUIPO, "Caso nuevo " + a.caso.radicado + " (" + a.caso.tipo + ") de " + a.caso.nombre + ", " + a.caso.municipio + ". Pendiente de revisión.");
       } else if (a.accion === "aviso_equipo") {
         const s = store.sesion(numero);
-        const msg = "Aviso (" + a.motivo + "): +" + numero + " " + (s.datos.nombre || "") + (s.ultimoCaso ? " · caso " + s.ultimoCaso : "");
+        const msg = "Aviso (" + a.motivo + "): " + (s.datos.telefono ? "+" + s.datos.telefono : numero) + " " + (s.datos.nombre || "") + (s.ultimoCaso ? " · caso " + s.ultimoCaso : "");
         console.log(msg);
         if (EQUIPO) await wa.texto(EQUIPO, msg);
       }
@@ -71,11 +71,19 @@ function yaVisto(id) {
   return false;
 }
 
-async function procesar(m, perfil) {
-  const numero = m.from;
+// Quién escribe: el número si Meta lo manda; si no, su identificador de usuario (BSUID).
+function remitente(m, contacto) {
+  return m.from || m.from_user_id || (contacto && (contacto.wa_id || contacto.user_id)) || null;
+}
+
+async function procesar(m, perfil, contacto) {
+  const numero = remitente(m, contacto);
+  if (!numero) { console.error("Mensaje sin remitente:", JSON.stringify(m)); return; }
   await wa.marcarLeido(m.id);
   const s = store.sesion(numero);
   if (perfil && !s.datos.perfil) s.datos.perfil = perfil;
+  const tel = m.from || (contacto && contacto.wa_id);
+  if (tel) s.datos.telefono = tel;
   const { sesion, acciones } = manejar(s, leerEntrada(m), { radicado: store.nuevoRadicado });
   store.actualizar(numero, sesion);
   await ejecutar(numero, acciones);
@@ -116,9 +124,10 @@ app.post("/webhook", (req, res) => {
       console.log("Webhook recibido (" + change.field + "): " + nMsg + " mensaje(s), " + nEst + " estado(s)" +
         (nEst ? " · " + v.statuses.map((s) => s.status + (s.errors ? " " + JSON.stringify(s.errors) : "")).join(", ") : ""));
       for (const m of v.messages || []) {
-        console.log("Mensaje de +" + m.from + " tipo " + m.type);
+        const quien = remitente(m, v.contacts && v.contacts[0]);
+        console.log("Mensaje de " + (m.from ? "+" + m.from : "usuario " + quien) + " tipo " + m.type);
         if (yaVisto(m.id)) continue;
-        enCola(m.from, () => procesar(m, perfil)).catch((e) => console.error("Error procesando:", e));
+        enCola(quien, () => procesar(m, perfil, v.contacts && v.contacts[0])).catch((e) => console.error("Error procesando:", e));
       }
     }
   }

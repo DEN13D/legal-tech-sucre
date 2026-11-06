@@ -11,6 +11,12 @@ const BASE = () => `https://graph.facebook.com/${VERSION}/${PHONE_ID}`;
 
 const enviados = []; // solo en DRY_RUN
 
+// Destinatario: número de teléfono → "to"; identificador de usuario de WhatsApp (BSUID, p. ej. "CO.123…") → "recipient".
+// Meta omite el número cuando la persona usa nombre de usuario de WhatsApp (desde abril de 2026).
+function destino(para) {
+  return /^\d+$/.test(String(para)) ? { to: String(para) } : { recipient_type: "individual", recipient: String(para) };
+}
+
 function recortar(t, max) {
   t = String(t);
   return t.length <= max ? t : t.slice(0, max - 1) + "…";
@@ -33,7 +39,7 @@ async function llamar(ruta, cuerpo) {
 
 function texto(para, cuerpo) {
   return llamar("/messages", {
-    messaging_product: "whatsapp", to: para, type: "text",
+    messaging_product: "whatsapp", ...destino(para), type: "text",
     text: { body: recortar(cuerpo, 4096), preview_url: false }
   });
 }
@@ -41,7 +47,7 @@ function texto(para, cuerpo) {
 // Hasta 3 botones de respuesta rápida (título máx. 20 caracteres).
 function botones(para, cuerpo, opciones) {
   return llamar("/messages", {
-    messaging_product: "whatsapp", to: para, type: "interactive",
+    messaging_product: "whatsapp", ...destino(para), type: "interactive",
     interactive: {
       type: "button",
       body: { text: recortar(cuerpo, 1024) },
@@ -53,7 +59,7 @@ function botones(para, cuerpo, opciones) {
 // Lista desplegable de hasta 10 opciones (título máx. 24, descripción máx. 72).
 function lista(para, cuerpo, boton, opciones) {
   return llamar("/messages", {
-    messaging_product: "whatsapp", to: para, type: "interactive",
+    messaging_product: "whatsapp", ...destino(para), type: "interactive",
     interactive: {
       type: "list",
       body: { text: recortar(cuerpo, 4096) },
@@ -87,7 +93,7 @@ async function documento(para, buffer, nombre, leyenda) {
     mediaId = datos.id;
   }
   return llamar("/messages", {
-    messaging_product: "whatsapp", to: para, type: "document",
+    messaging_product: "whatsapp", ...destino(para), type: "document",
     document: { id: mediaId, filename: nombre, caption: recortar(leyenda, 1024) }
   });
 }
@@ -98,4 +104,4 @@ function marcarLeido(idMensaje) {
   return llamar("/messages", { messaging_product: "whatsapp", status: "read", message_id: idMensaje }).catch(() => {});
 }
 
-module.exports = { texto, botones, lista, documento, marcarLeido, enviados, DRY_RUN };
+module.exports = { destino, texto, botones, lista, documento, marcarLeido, enviados, DRY_RUN };

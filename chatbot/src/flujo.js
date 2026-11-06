@@ -172,7 +172,7 @@ function manejar(s, entrada, ctx = {}) {
       const tipo = esUrgente(s.respuestas) ? "tutela" : "peticion";
       const caso = {
         radicado: ctx.radicado ? ctx.radicado(fecha) : "LTS-0000-0000",
-        tipo, fecha, telefono: s.numero, nombre: s.datos.nombre, municipio: s.datos.municipio,
+        tipo, fecha, telefono: s.datos.telefono || (/^\d+$/.test(String(s.numero)) ? s.numero : ""), nombre: s.datos.nombre, municipio: s.datos.municipio,
         ...s.respuestas, estado: "pendiente_revision_abogado", creado: new Date().toISOString()
       };
       const limite = tipo === "peticion" ? fechaLarga(sumarHabiles(fecha, 15)) : null;

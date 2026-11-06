@@ -110,6 +110,28 @@ async function conversacion(nombre, numero, pasos) {
     ["hola", txt("hola")]
   ]);
 
+  // Persona con nombre de usuario de WhatsApp: Meta no manda el número, solo el identificador (BSUID)
+  console.log("\n=== 4. Sin número de teléfono (identificador BSUID) ===");
+  const bsuid = "CO.13491208655302741918";
+  const desde4 = wa.enviados.length;
+  for (const msg of [txt("hola"), btn("si"), txt("Rosa Elvira Díaz"), txt("Ovejas"), lst("eps"), lst("negaron"), btn("mas3m"), btn("si")]) {
+    const p = payload("x", msg);
+    const val = p.entry[0].changes[0].value;
+    delete val.messages[0].from;
+    val.messages[0].from_user_id = bsuid;
+    val.contacts = [{ user_id: bsuid, profile: { name: "Rosa", username: "@rosa" } }];
+    const cuerpo = JSON.stringify(p);
+    const firma = "sha256=" + crypto.createHmac("sha256", process.env.APP_SECRET).update(cuerpo).digest("hex");
+    await fetch(base + "/webhook", { method: "POST", headers: { "Content-Type": "application/json", "X-Hub-Signature-256": firma }, body: cuerpo });
+    await new Promise((ok) => setTimeout(ok, 60));
+  }
+  const env4 = wa.enviados.slice(desde4);
+  env4.forEach(validarLimites);
+  assert(env4.length >= 10, "debe responder la conversación completa");
+  assert(env4.every((m) => m.recipient === bsuid && !m.to), "debe responder con recipient = BSUID y sin to");
+  assert(env4.some((m) => m.type === "document"), "debe enviar el PDF");
+  console.log("  " + env4.length + " mensajes enviados a recipient " + bsuid + ", incluido el PDF");
+
   // Mensaje repetido por Meta: no se responde dos veces
   const antes = wa.enviados.length;
   const repetido = JSON.stringify(payload("573001112233", txt("hola")));
@@ -119,9 +141,11 @@ async function conversacion(nombre, numero, pasos) {
   assert.strictEqual(wa.enviados.length - antes, 2, "el repetido se procesa una sola vez (reinicio = 2 mensajes)");
 
   const casos = store.listarCasos();
-  assert.strictEqual(casos.length, 2);
+  assert.strictEqual(casos.length, 3);
   assert.strictEqual(casos[0].tipo, "peticion");
   assert.strictEqual(casos[1].tipo, "tutela");
+  assert.strictEqual(casos[2].tipo, "tutela");
+  assert.strictEqual(casos[2].telefono, "", "sin número, el PDF deja el espacio para completar");
   console.log("\nCasos registrados:", casos.map((c) => c.radicado + " " + c.tipo + " " + c.nombre).join(" | "));
   console.log("\nTodo bien: " + wa.enviados.length + " mensajes enviados, límites de WhatsApp respetados.");
   servidor.close();

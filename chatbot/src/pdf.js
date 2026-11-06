@@ -182,7 +182,7 @@ function generarPDF(caso) {
     }
 
     titulo(doc, "Notificaciones");
-    parrafo(doc, ["Recibiré respuesta en ", { ph: "dirección" }, " y en el celular y WhatsApp +" + (caso.telefono || "") + "."]);
+    parrafo(doc, ["Recibiré respuesta en ", { ph: "dirección" }, " y en el celular y WhatsApp ", caso.telefono ? "+" + caso.telefono : { ph: "número de celular" }, "."]);
     parrafo(doc, ["Atentamente,"]);
     doc.moveDown(2.2);
     const yFirma = doc.y;
