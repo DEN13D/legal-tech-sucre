@@ -26,6 +26,10 @@ Abre `index.html` en cualquier navegador, o entra a la versión publicada en Git
 
 WhatsApp: +57 310 485 0697
 
+## Chatbot de WhatsApp
+
+En la carpeta [`chatbot/`](chatbot/) está el chatbot de prueba (Node.js): autorización de datos, triaje de 4 preguntas y borrador en PDF enviado por WhatsApp, con el número de prueba de Meta y sin pagos. Las instrucciones para ponerlo a funcionar están en [chatbot/README.md](chatbot/README.md).
+
 ## Pendientes
 
 - Validar con un abogado las 4 preguntas del triaje, las plantillas y los textos legales.

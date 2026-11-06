@@ -1,0 +1,20 @@
+{
+  "name": "legal-tech-sucre-chatbot",
+  "version": "0.1.0",
+  "description": "Chatbot de WhatsApp de prueba de Legal Tech Sucre: autorización de datos, triaje de 4 preguntas y borrador en PDF.",
+  "main": "src/server.js",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --env-file=.env src/server.js",
+    "simular": "node test/simular.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.21.2",
+    "pdfkit": "^0.15.2"
+  }
+}
